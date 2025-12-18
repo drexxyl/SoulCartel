@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOUL CARTEL</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+
+  <!-- Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+
+  <style>
+    :root {
+      --black: #050505;
+      --white: #f5f5f5;
+      --red: #8b0000;
+      --silver: #bfbfbf;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #0b0b0b, #000);
+      color: var(--white);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* HERO */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    canvas { position:absolute; inset:0; z-index:0; }
+
+    .hero-content { z-index:2; text-align:center; }
+    .hero h1 { font-family:'Cinzel', serif; font-size:clamp(3rem, 8vw, 7rem); letter-spacing:0.15em; color:var(--silver); text-shadow:0 0 40px rgba(255,255,255,0.15); }
+    .hero p { margin-top:1rem; font-size:1rem; letter-spacing:0.3em; color:rgba(255,255,255,0.6); }
+
+    /* SECTIONS */
+    section { padding:10rem 10vw; opacity:0; transform:translateY(40px); transition:opacity 1.2s ease, transform 1.2s ease; }
+    section.visible { opacity:1; transform:translateY(0); }
+
+    .manifesto { background:linear-gradient(180deg,#000,#060606); }
+    .manifesto h2 { font-size:2.5rem; margin-bottom:2rem; letter-spacing:0.2em; }
+    .manifesto p { max-width:700px; font-size:1.2rem; line-height:1.8; color:rgba(255,255,255,0.7); }
+
+    /* COLLECTION */
+    .collection { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:3rem; }
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding:3rem 2rem;
+      border-radius:20px;
+      backdrop-filter: blur(12px);
+      transition: transform 0.6s cubic-bezier(0.22,1,0.36,1), box-shadow 0.6s ease, border-color 0.6s ease;
+      will-change: transform;
+    }
+    .card:hover { transform:translateY(-10px) scale(1.04); border-color:rgba(255,255,255,0.25); box-shadow:0 40px 120px rgba(0,0,0,0.6); }
+    .card h3 { letter-spacing:0.15em; margin-bottom:1rem; }
+
+    /* FOOTER */
+    footer { padding:4rem 10vw; border-top:1px solid rgba(255,255,255,0.08); text-align:center; color:rgba(255,255,255,0.4); }
+
+    /* LUXURY TITLE */
+    .luxury-title { opacity:0; transform:translateY(20px); animation:fadeUp 1.6s ease-out forwards; }
+    @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+    /* ACCESS (if needed later) */
+    .access { display:none; } /* hidden for now */
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <canvas id="scene"></canvas>
+    <div class="hero-content">
+      <h1 class="luxury-title">SOUL CARTEL</h1>
+      <p>BUILT FROM SOUL · RULED BY CARTEL</p>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="manifesto">
+    <h2>ABOUT</h2>
+    <p>
+      SOUL CARTEL exists between fashion and feeling. Designed for a generation
+      that values silence over noise, presence over performance. Every piece is
+      intentional. Every detail restrained.
+    </p>
+  </section>
+
+  <!-- PHILOSOPHY -->
+  <section class="manifesto">
+    <h2>PHILOSOPHY</h2>
+    <p>
+      Luxury is not excess. It is control. We remove until only the necessary
+      remains. What you wear should feel personal, not loud.
+    </p>
+  </section>
+
+  <!-- COLLECTION -->
+  <section>
+    <h2>COLLECTIONS</h2>
+    <div class="collection">
+      <div class="card">
+        <h3>OBSIDIAN</h3>
+        <p>Heavyweight silhouettes. Matte finishes.</p>
+      </div>
+      <div class="card">
+        <h3>BLOODLINE</h3>
+        <p>Limited release. Deep tones. Sharp cuts.</p>
+      </div>
+      <div class="card">
+        <h3>VOID</h3>
+        <p>Minimal forms. Maximum presence.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section class="manifesto">
+    <h2>EXPERIENCE</h2>
+    <p>
+      This is not fast fashion. Drops are rare. Access is quiet. Ownership is
+      intentional.
+    </p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    © 2025 SOUL CARTEL · ALL ACCESS CONTROLLED
+  </footer>
+
+  <!-- THREE.JS -->
+  <script>
+    // Scroll reveal
+    const sections = document.querySelectorAll('section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+    sections.forEach(s => observer.observe(s));
+
+    // Three.js Scene
+    const canvas = document.getElementById('scene');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.z = 4;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true, powerPreference:'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+    const geometry = new THREE.TorusKnotGeometry(1,0.3,120,16);
+    const material = new THREE.MeshStandardMaterial({ color:0xaaaaaa, metalness:1, roughness:0.15 });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    const ambient = new THREE.AmbientLight(0xffffff,0.4);
+    scene.add(ambient);
+
+    const light1 = new THREE.PointLight(0xffffff,1);
+    light1.position.set(5,5,5);
+    scene.add(light1);
+
+    const light2 = new THREE.PointLight(0x8b0000,1);
+    light2.position.set(-5,-5,-5);
+    scene.add(light2);
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      const elapsed = clock.getElapsedTime();
+      mesh.rotation.y = elapsed * 0.15;
+      mesh.rotation.x = Math.sin(elapsed*0.25)*0.15;
+      renderer.render(scene,camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener('resize',()=>{
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+
+</body>
+</html>
