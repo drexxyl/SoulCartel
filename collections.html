@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COLLECTIONS · SOUL CARTEL</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --bg:#000;
+  --panel:#0c0c0c;
   --text:#f2f2f2;
   --muted:rgba(255,255,255,.55);
   --silver:#bfbfbf;
@@ -19,7 +19,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  background:#000;
+  background:radial-gradient(circle at top,#0b0b0b,#000);
   color:var(--text);
   font-family:Inter,sans-serif;
   overflow-x:hidden;
@@ -44,56 +44,87 @@ nav a:hover{color:var(--text)}
 
 /* HERO */
 .hero{
-  height:60vh;
+  height:50vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  text-align:center;
-  position:relative;
-  z-index:2;
 }
 .hero h1{
   font-family:Cinzel,serif;
   letter-spacing:.4em;
-  font-size:clamp(2.5rem,6vw,5rem);
+  font-size:clamp(2.5rem,6vw,4.5rem);
   color:var(--silver);
 }
 
-/* CANVAS */
-canvas{
-  position:fixed;
-  inset:0;
-  z-index:0;
+/* DEPTH WRAPPER */
+.depth{
+  perspective:1200px;
+  padding:8rem 10vw 10rem;
 }
 
-/* COLLECTION LIST */
-.collections{
-  position:relative;
-  z-index:2;
-  padding:8rem 10vw;
+/* COLLECTION GRID */
+.grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:4rem;
 }
 
-.item{
-  border-top:1px solid rgba(255,255,255,.12);
-  padding-top:2rem;
-  transition:.4s ease;
+/* CARD */
+.card{
+  position:relative;
+  height:360px;
+  background:var(--panel);
+  border-radius:18px;
+  transform-style:preserve-3d;
+  transform:translateZ(-40px);
+  transition:transform .6s cubic-bezier(.22,1,.36,1),
+             box-shadow .6s cubic-bezier(.22,1,.36,1);
+  box-shadow:
+    0 40px 80px rgba(0,0,0,.7),
+    inset 0 1px 0 rgba(255,255,255,.05);
 }
-.item:hover{transform:translateY(-6px)}
 
-.item h3{
+/* SHADOW PLANE */
+.card::before{
+  content:"";
+  position:absolute;
+  inset:-30px;
+  background:rgba(0,0,0,.6);
+  filter:blur(60px);
+  z-index:-1;
+}
+
+/* HOVER DEPTH */
+.card:hover{
+  transform:translateZ(40px);
+  box-shadow:
+    0 70px 120px rgba(0,0,0,.9),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* CONTENT */
+.inner{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:3rem;
+  transform:translateZ(40px);
+}
+
+.inner h3{
   font-family:Cinzel,serif;
   letter-spacing:.3em;
+  margin-bottom:1rem;
   color:var(--silver);
-  margin-bottom:.8rem;
 }
 
-.item p{
+.inner p{
   font-size:.85rem;
   letter-spacing:.12em;
   color:var(--muted);
+  max-width:240px;
 }
 
 /* FOOTER */
@@ -115,106 +146,40 @@ footer{
   <a href="collections.html">COLLECTIONS</a>
 </nav>
 
-<canvas id="bg"></canvas>
-
 <section class="hero">
   <h1>COLLECTIONS</h1>
 </section>
 
-<section class="collections">
-  <div class="item">
-    <h3>OBSIDIAN</h3>
-    <p>Heavy silhouettes. Matte restraint.</p>
-  </div>
-  <div class="item">
-    <h3>BLOODLINE</h3>
-    <p>Limited cuts. Controlled aggression.</p>
-  </div>
-  <div class="item">
-    <h3>VOID</h3>
-    <p>Minimal form. Absolute presence.</p>
+<section class="depth">
+  <div class="grid">
+
+    <div class="card">
+      <div class="inner">
+        <h3>OBSIDIAN</h3>
+        <p>Heavy silhouettes. Matte control.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="inner">
+        <h3>BLOODLINE</h3>
+        <p>Limited cuts. Silent aggression.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="inner">
+        <h3>VOID</h3>
+        <p>Reduced form. Absolute presence.</p>
+      </div>
+    </div>
+
   </div>
 </section>
 
 <footer>
 © 2025 SOUL CARTEL · ALL ACCESS CONTROLLED
 </footer>
-
-<script>
-/* === THREE.JS : ABSTRACT SHRINE === */
-const canvas = document.getElementById("bg");
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(
-  55,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
-);
-camera.position.set(0, 2, 8);
-
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  alpha:true,
-  antialias:true,
-  powerPreference:"high-performance"
-});
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-
-/* LIGHT */
-scene.add(new THREE.AmbientLight(0xffffff,.4));
-const dir = new THREE.DirectionalLight(0xffffff,.6);
-dir.position.set(5,10,5);
-scene.add(dir);
-
-/* MATERIAL */
-const stone = new THREE.MeshStandardMaterial({
-  color:0x9a9a9a,
-  roughness:.85,
-  metalness:.1
-});
-
-/* SHRINE STRUCTURE */
-const group = new THREE.Group();
-
-// pillars
-for(let i=-2;i<=2;i++){
-  const pillar = new THREE.Mesh(
-    new THREE.BoxGeometry(.6,4,.6),
-    stone
-  );
-  pillar.position.set(i*1.4,2,-2);
-  group.add(pillar);
-}
-
-// altar block
-const altar = new THREE.Mesh(
-  new THREE.BoxGeometry(3,.8,2),
-  stone
-);
-altar.position.set(0,.4,0);
-group.add(altar);
-
-scene.add(group);
-
-/* ANIMATION */
-let t=0;
-function animate(){
-  t+=0.002;
-  group.position.y = Math.sin(t)*0.08;
-  renderer.render(scene,camera);
-  requestAnimationFrame(animate);
-}
-animate();
-
-/* RESIZE */
-window.addEventListener("resize",()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
-</script>
 
 </body>
 </html>
