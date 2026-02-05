@@ -10,34 +10,38 @@
 <style>
 :root{
   --bg:#000;
-  --text:#eee;
-  --muted:rgba(255,255,255,.5);
-  --red:#8b0000;
+  --text:#eaeaea;
+  --muted:rgba(255,255,255,.45);
+  --dark:#6b0000;
+  --good:#7a8f7f;
+  --admin:#bfbfbf;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  background:radial-gradient(circle at top,#0b0b0b,#000);
-  color:var(--text);
-  font-family:Inter,sans-serif;
   height:100vh;
+  background:radial-gradient(circle at top,#0b0b0b,#000);
+  font-family:Inter,sans-serif;
+  color:var(--text);
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
 }
 
+/* fade veil */
 .veil{
   position:fixed;
   inset:0;
   background:#000;
   opacity:0;
   pointer-events:none;
-  transition:opacity 1.2s ease;
-  z-index:10;
+  transition:opacity 1.1s ease;
+  z-index:5;
 }
 
+/* main gate */
 .gate{
   text-align:center;
   z-index:2;
@@ -51,67 +55,83 @@ body{
 }
 
 @keyframes breathe{
-  0%,100%{letter-spacing:.3em;opacity:.5}
-  50%{letter-spacing:.7em;opacity:1}
+  0%,100%{opacity:.5;letter-spacing:.3em}
+  50%{opacity:1;letter-spacing:.7em}
 }
 
 .gate p{
-  margin:1.2rem 0;
-  font-size:.75rem;
+  margin:1.3rem 0;
+  font-size:.72rem;
   letter-spacing:.35em;
   color:var(--muted);
 }
 
 input{
-  <p id="status" style="
-  margin-top:1.5rem;
-  font-size:.65rem;
-  letter-spacing:.3em;
-  color:var(--muted);
-  opacity:0;
-  transition:.4s;
-">
-VERIFYING SOUL SIGNATURE
-</p>
-  <p id="status" class="status">VERIFYING SOUL SIGNATURE</p>
+  width:220px;
+  padding:.7rem 1.1rem;
   background:transparent;
   border:1px solid rgba(255,255,255,.2);
   color:white;
-  padding:.7rem 1rem;
   text-align:center;
   letter-spacing:.3em;
   outline:none;
 }
 
+/* status + error */
+.status{
+  margin-top:1.4rem;
+  font-size:.65rem;
+  letter-spacing:.3em;
+  opacity:0;
+  transition:.35s;
+  color:var(--muted);
+}
+
+.status.show{opacity:1}
+.status.good{color:var(--good)}
+.status.dark{color:var(--dark)}
+.status.admin{color:var(--admin); letter-spacing:.45em}
+
 .error{
   margin-top:1rem;
-  font-size:.7rem;
-  color:var(--red);
+  font-size:.65rem;
   letter-spacing:.25em;
+  color:var(--dark);
   opacity:0;
-  transition:.3s;
 }
 
 .error.show{opacity:1}
 
-.gate.glitch{animation:glitch .35s linear}
-@keyframes glitch{
-  0%{transform:translate(0)}
-  25%{transform:translate(-2px,1px)}
-  50%{transform:translate(2px,-1px)}
-  75%{transform:translate(-1px,2px)}
-  100%{transform:translate(0)}
+/* animations */
+.shake{animation:shake .35s}
+@keyframes shake{
+  25%{transform:translateX(-3px)}
+  50%{transform:translateX(3px)}
+  75%{transform:translateX(-2px)}
 }
 
-.unlock #sigil{
-  animation:unlock 1.2s forwards;
+.fade{animation:fadeout 1.2s forwards}
+@keyframes fadeout{to{opacity:0}}
+
+/* hidden admin UI */
+.admin-ui{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  font-size:.55rem;
+  letter-spacing:.3em;
+  color:var(--admin);
+  opacity:0;
+  pointer-events:none;
+  transition:.6s;
 }
 
-@keyframes unlock{
-  0%{opacity:1}
-  50%{opacity:.3;letter-spacing:1em}
-  100%{opacity:0}
+.admin-ui.show{
+  opacity:.8;
+  pointer-events:auto;
 }
+
+.admin-ui:hover{opacity:1}
 </style>
 </head>
 
@@ -122,39 +142,98 @@ VERIFYING SOUL SIGNATURE
 <div class="gate">
   <h1 id="sigil">ACCESS</h1>
   <p>ENTER AUTHORIZATION CODE</p>
-  <input id="pw" type="password" autofocus>
-  <div class="error" id="err">ACCESS DENIED</div>
+
+  <input id="pw" type="password" autofocus
+         oninput="this.value=this.value.toUpperCase()">
+
+  <div id="status" class="status">VERIFYING SOUL SIGNATURE</div>
+  <div id="err" class="error"></div>
+</div>
+
+<!-- hidden admin panel -->
+<div class="admin-ui" id="adminUI">
+  ADMIN MODE ENABLED
 </div>
 
 <script>
-const PASSWORD = "CARTEL";
-const TIME_LIMIT = 5 * 60 * 1000; // 5 minutes
-
 const pw = document.getElementById("pw");
 const gate = document.querySelector(".gate");
-const err = document.getElementById("err");
 const veil = document.querySelector(".veil");
+const status = document.getElementById("status");
+const err = document.getElementById("err");
+const adminUI = document.getElementById("adminUI");
+
+const ACCESS = {
+  "V.": {
+    delay: 450,
+    msg: "ADMIN SIGNATURE ABSOLUTE",
+    style: "admin",
+    admin: true
+  },
+  "SIN": {
+    delay: 750,
+    msg: "SIN AUTHORITY ACCEPTED",
+    style: "dark"
+  },
+  "DEATH": {
+    delay: 1000,
+    msg: "DEATH SEAL VERIFIED",
+    style: "dark"
+  },
+  "SOUL": {
+    delay: 1200,
+    msg: "SOUL PATTERN MATCH",
+    style: "good"
+  },
+  "CARTEL": {
+    delay: 1400,
+    msg: "CARTEL ACCESS GRANTED",
+    style: "good"
+  },
+  "APOCALYPSE": {
+    delay: 1800,
+    msg: "FINAL EVENT ACKNOWLEDGED",
+    style: "dark"
+  }
+};
 
 pw.addEventListener("keydown", e=>{
-  if(e.key==="Enter"){
-    if(pw.value===PASSWORD){
-      gate.classList.add("unlock");
-      veil.style.opacity=1;
+  if(e.key !== "Enter") return;
 
-      sessionStorage.setItem("cartel_access","true");
-      sessionStorage.setItem("cartel_time",Date.now());
+  const val = pw.value.trim().toUpperCase();
+  err.classList.remove("show");
 
-      setTimeout(()=>{
-        location.href="home.html";
-      },1200);
-    }
-    else{
-      gate.classList.add("glitch");
-      err.classList.add("show");
-      pw.value="";
-      setTimeout(()=>gate.classList.remove("glitch"),400);
-    }
+  status.className = "status show";
+  status.textContent = "VERIFYING SOUL SIGNATURE";
+
+  if(!ACCESS[val]){
+    gate.classList.add("shake");
+    err.textContent = "SIGNATURE REJECTED";
+    err.classList.add("show");
+    pw.value = "";
+    setTimeout(()=>gate.classList.remove("shake"),400);
+    return;
   }
+
+  const cfg = ACCESS[val];
+
+  setTimeout(()=>{
+    status.textContent = cfg.msg;
+    status.classList.add(cfg.style);
+  }, cfg.admin ? 120 : 350);
+
+  if(cfg.admin){
+    adminUI.classList.add("show");
+  }
+
+  setTimeout(()=>{
+    veil.style.opacity = 1;
+    gate.classList.add("fade");
+  }, cfg.delay);
+
+  setTimeout(()=>{
+    location.href = "home.html";
+  }, cfg.delay + 900);
 });
 </script>
 
