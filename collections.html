@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>COLLECTIONS · SOUL CARTEL</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
 
 <style>
 :root{
@@ -19,7 +20,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  background:radial-gradient(circle at top,#0b0b0b,#000);
+  background:#000;
   color:var(--text);
   font-family:Inter,sans-serif;
   overflow-x:hidden;
@@ -41,67 +42,70 @@ nav a{
   font-size:.7rem;
   letter-spacing:.25em;
 }
-
 nav a:hover{color:var(--text)}
 
 /* HERO */
 .hero{
-  height:60vh;
+  height:70vh;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
+  position:relative;
 }
 
 .hero h1{
   font-family:Cinzel,serif;
-  letter-spacing:.4em;
   font-size:clamp(2.5rem,6vw,5rem);
+  letter-spacing:.45em;
   color:var(--silver);
-  text-shadow:0 0 40px rgba(255,255,255,.12);
+  text-shadow:0 0 50px rgba(255,255,255,.12);
+  z-index:2;
 }
 
-/* SHRINE FLOOR */
-.shrine{
-  padding:8rem 10vw;
+/* CANVAS */
+#shrine{
+  position:fixed;
+  inset:0;
+  z-index:0;
+}
+
+/* COLLECTION GRID */
+.collections{
+  position:relative;
+  padding:8rem 10vw 10rem;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:4rem;
+  z-index:2;
   perspective:1200px;
 }
 
-/* ALTAR CARD */
+/* ALTAR */
 .altar{
-  position:relative;
-  height:360px;
+  height:340px;
   background:rgba(255,255,255,.03);
   border:1px solid rgba(255,255,255,.08);
   border-radius:24px;
   transform-style:preserve-3d;
-  transform:translateZ(-40px);
   transition:1s cubic-bezier(.22,1,.36,1);
-  animation:breath 6s ease-in-out infinite;
-}
-
-.altar::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:24px;
-  box-shadow:0 0 80px rgba(139,0,0,.15);
-  opacity:.6;
+  position:relative;
 }
 
 .altar:hover{
-  transform:translateZ(40px) rotateX(6deg);
-  box-shadow:0 60px 140px rgba(0,0,0,.8);
+  transform:translateZ(60px) rotateX(8deg);
+  box-shadow:0 80px 160px rgba(0,0,0,.9);
 }
 
-@keyframes breath{
-  0%,100%{transform:translateZ(-40px)}
-  50%{transform:translateZ(0)}
+/* SIGIL */
+.sigil{
+  width:120px;
+  height:120px;
+  margin:0 auto 1.5rem;
+  filter:drop-shadow(0 0 25px rgba(139,0,0,.4));
 }
 
+/* CONTENT */
 .altar-inner{
   position:absolute;
   inset:0;
@@ -121,7 +125,7 @@ nav a:hover{color:var(--text)}
 }
 
 .altar p{
-  font-size:.85rem;
+  font-size:.8rem;
   letter-spacing:.15em;
   color:var(--muted);
   max-width:220px;
@@ -135,11 +139,15 @@ footer{
   letter-spacing:.25em;
   color:rgba(255,255,255,.4);
   border-top:1px solid rgba(255,255,255,.08);
+  z-index:2;
+  position:relative;
 }
 </style>
 </head>
 
 <body>
+
+<canvas id="shrine"></canvas>
 
 <nav>
   <a href="home.html">HOME</a>
@@ -150,34 +158,96 @@ footer{
   <h1>COLLECTIONS</h1>
 </section>
 
-<section class="shrine">
+<section class="collections">
 
   <div class="altar">
     <div class="altar-inner">
+      <svg class="sigil" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" stroke="#8b0000" fill="none"/>
+        <path d="M50 8 L92 50 L50 92 L8 50 Z" stroke="#8b0000" fill="none"/>
+      </svg>
       <h3>OBSIDIAN</h3>
-      <p>Heavy silhouettes forged in silence.</p>
+      <p>Forged weight. Silent authority.</p>
     </div>
   </div>
 
   <div class="altar">
     <div class="altar-inner">
+      <svg class="sigil" viewBox="0 0 100 100">
+        <polygon points="50,6 94,50 50,94 6,50" stroke="#8b0000" fill="none"/>
+      </svg>
       <h3>BLOODLINE</h3>
-      <p>Limited release. Bound by ritual.</p>
+      <p>Bound by ritual. Limited descent.</p>
     </div>
   </div>
 
   <div class="altar">
     <div class="altar-inner">
+      <svg class="sigil" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="36" stroke="#8b0000" fill="none"/>
+      </svg>
       <h3>VOID</h3>
-      <p>Minimal form. Maximum presence.</p>
+      <p>Nothing removed. Everything refined.</p>
     </div>
   </div>
 
 </section>
 
 <footer>
-© 2025 SOUL CARTEL · CURATED IN SHADOW
+© 2025 SOUL CARTEL · MALEVOLENT CURATION
 </footer>
+
+<script>
+/* THREE.JS SHRINE */
+const canvas = document.getElementById("shrine");
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  60, window.innerWidth/window.innerHeight, 0.1, 1000
+);
+camera.position.z = 6;
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  alpha:true,
+  antialias:true
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+/* SHRINE OBJECT */
+const geo = new THREE.TorusKnotGeometry(1.6, .35, 180, 24);
+const mat = new THREE.MeshStandardMaterial({
+  color:0x111111,
+  metalness:1,
+  roughness:.25,
+  emissive:0x220000
+});
+const shrine = new THREE.Mesh(geo,mat);
+scene.add(shrine);
+
+/* LIGHTS */
+scene.add(new THREE.AmbientLight(0xffffff,.25));
+const red = new THREE.PointLight(0x8b0000,1.4);
+red.position.set(3,2,3);
+scene.add(red);
+
+/* ANIMATE */
+function animate(){
+  shrine.rotation.y += .0015;
+  shrine.rotation.x += .0008;
+  renderer.render(scene,camera);
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* RESIZE */
+window.addEventListener("resize",()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
 
 </body>
 </html>
