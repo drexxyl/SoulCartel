@@ -14,7 +14,6 @@
   --text:#f2f2f2;
   --muted:rgba(255,255,255,.55);
   --silver:#bfbfbf;
-  --red:#8b0000;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -35,7 +34,6 @@ nav{
   gap:24px;
   z-index:10;
 }
-
 nav a{
   color:var(--muted);
   text-decoration:none;
@@ -46,89 +44,56 @@ nav a:hover{color:var(--text)}
 
 /* HERO */
 .hero{
-  height:70vh;
+  height:60vh;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
   position:relative;
+  z-index:2;
 }
-
 .hero h1{
   font-family:Cinzel,serif;
+  letter-spacing:.4em;
   font-size:clamp(2.5rem,6vw,5rem);
-  letter-spacing:.45em;
   color:var(--silver);
-  text-shadow:0 0 50px rgba(255,255,255,.12);
-  z-index:2;
 }
 
 /* CANVAS */
-#shrine{
+canvas{
   position:fixed;
   inset:0;
   z-index:0;
 }
 
-/* COLLECTION GRID */
+/* COLLECTION LIST */
 .collections{
   position:relative;
-  padding:8rem 10vw 10rem;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:4rem;
   z-index:2;
-  perspective:1200px;
+  padding:8rem 10vw;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:4rem;
 }
 
-/* ALTAR */
-.altar{
-  height:340px;
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:24px;
-  transform-style:preserve-3d;
-  transition:1s cubic-bezier(.22,1,.36,1);
-  position:relative;
+.item{
+  border-top:1px solid rgba(255,255,255,.12);
+  padding-top:2rem;
+  transition:.4s ease;
 }
+.item:hover{transform:translateY(-6px)}
 
-.altar:hover{
-  transform:translateZ(60px) rotateX(8deg);
-  box-shadow:0 80px 160px rgba(0,0,0,.9);
-}
-
-/* SIGIL */
-.sigil{
-  width:120px;
-  height:120px;
-  margin:0 auto 1.5rem;
-  filter:drop-shadow(0 0 25px rgba(139,0,0,.4));
-}
-
-/* CONTENT */
-.altar-inner{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  transform:translateZ(40px);
-  text-align:center;
-}
-
-.altar h3{
+.item h3{
   font-family:Cinzel,serif;
   letter-spacing:.3em;
-  margin-bottom:1rem;
   color:var(--silver);
+  margin-bottom:.8rem;
 }
 
-.altar p{
-  font-size:.8rem;
-  letter-spacing:.15em;
+.item p{
+  font-size:.85rem;
+  letter-spacing:.12em;
   color:var(--muted);
-  max-width:220px;
 }
 
 /* FOOTER */
@@ -139,103 +104,105 @@ footer{
   letter-spacing:.25em;
   color:rgba(255,255,255,.4);
   border-top:1px solid rgba(255,255,255,.08);
-  z-index:2;
-  position:relative;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="shrine"></canvas>
-
 <nav>
   <a href="home.html">HOME</a>
   <a href="collections.html">COLLECTIONS</a>
 </nav>
+
+<canvas id="bg"></canvas>
 
 <section class="hero">
   <h1>COLLECTIONS</h1>
 </section>
 
 <section class="collections">
-
-  <div class="altar">
-    <div class="altar-inner">
-      <svg class="sigil" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="42" stroke="#8b0000" fill="none"/>
-        <path d="M50 8 L92 50 L50 92 L8 50 Z" stroke="#8b0000" fill="none"/>
-      </svg>
-      <h3>OBSIDIAN</h3>
-      <p>Forged weight. Silent authority.</p>
-    </div>
+  <div class="item">
+    <h3>OBSIDIAN</h3>
+    <p>Heavy silhouettes. Matte restraint.</p>
   </div>
-
-  <div class="altar">
-    <div class="altar-inner">
-      <svg class="sigil" viewBox="0 0 100 100">
-        <polygon points="50,6 94,50 50,94 6,50" stroke="#8b0000" fill="none"/>
-      </svg>
-      <h3>BLOODLINE</h3>
-      <p>Bound by ritual. Limited descent.</p>
-    </div>
+  <div class="item">
+    <h3>BLOODLINE</h3>
+    <p>Limited cuts. Controlled aggression.</p>
   </div>
-
-  <div class="altar">
-    <div class="altar-inner">
-      <svg class="sigil" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="36" stroke="#8b0000" fill="none"/>
-      </svg>
-      <h3>VOID</h3>
-      <p>Nothing removed. Everything refined.</p>
-    </div>
+  <div class="item">
+    <h3>VOID</h3>
+    <p>Minimal form. Absolute presence.</p>
   </div>
-
 </section>
 
 <footer>
-© 2025 SOUL CARTEL · MALEVOLENT CURATION
+© 2025 SOUL CARTEL · ALL ACCESS CONTROLLED
 </footer>
 
 <script>
-/* THREE.JS SHRINE */
-const canvas = document.getElementById("shrine");
+/* === THREE.JS : ABSTRACT SHRINE === */
+const canvas = document.getElementById("bg");
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-  60, window.innerWidth/window.innerHeight, 0.1, 1000
+  55,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
 );
-camera.position.z = 6;
+camera.position.set(0, 2, 8);
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
   alpha:true,
-  antialias:true
+  antialias:true,
+  powerPreference:"high-performance"
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 
-/* SHRINE OBJECT */
-const geo = new THREE.TorusKnotGeometry(1.6, .35, 180, 24);
-const mat = new THREE.MeshStandardMaterial({
-  color:0x111111,
-  metalness:1,
-  roughness:.25,
-  emissive:0x220000
+/* LIGHT */
+scene.add(new THREE.AmbientLight(0xffffff,.4));
+const dir = new THREE.DirectionalLight(0xffffff,.6);
+dir.position.set(5,10,5);
+scene.add(dir);
+
+/* MATERIAL */
+const stone = new THREE.MeshStandardMaterial({
+  color:0x9a9a9a,
+  roughness:.85,
+  metalness:.1
 });
-const shrine = new THREE.Mesh(geo,mat);
-scene.add(shrine);
 
-/* LIGHTS */
-scene.add(new THREE.AmbientLight(0xffffff,.25));
-const red = new THREE.PointLight(0x8b0000,1.4);
-red.position.set(3,2,3);
-scene.add(red);
+/* SHRINE STRUCTURE */
+const group = new THREE.Group();
 
-/* ANIMATE */
+// pillars
+for(let i=-2;i<=2;i++){
+  const pillar = new THREE.Mesh(
+    new THREE.BoxGeometry(.6,4,.6),
+    stone
+  );
+  pillar.position.set(i*1.4,2,-2);
+  group.add(pillar);
+}
+
+// altar block
+const altar = new THREE.Mesh(
+  new THREE.BoxGeometry(3,.8,2),
+  stone
+);
+altar.position.set(0,.4,0);
+group.add(altar);
+
+scene.add(group);
+
+/* ANIMATION */
+let t=0;
 function animate(){
-  shrine.rotation.y += .0015;
-  shrine.rotation.x += .0008;
+  t+=0.002;
+  group.position.y = Math.sin(t)*0.08;
   renderer.render(scene,camera);
   requestAnimationFrame(animate);
 }
@@ -245,7 +212,7 @@ animate();
 window.addEventListener("resize",()=>{
   camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(window.innerWidth,window.innerHeight);
 });
 </script>
 
