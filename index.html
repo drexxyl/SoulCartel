@@ -159,8 +159,17 @@
   </style>
 </head>
 <script>
-if(localStorage.getItem("cartel_access")!=="true"){
-  window.location.href="gate.html";
+const LIMIT = 5 * 60 * 1000;
+
+const access = sessionStorage.getItem("cartel_access");
+const time = sessionStorage.getItem("cartel_time");
+
+if(!access || !time || Date.now() - time > LIMIT){
+  sessionStorage.clear();
+  document.body.style.opacity = 0;
+  setTimeout(()=>{
+    location.href="gate.html";
+  },300);
 }
 </script>
 <body>
