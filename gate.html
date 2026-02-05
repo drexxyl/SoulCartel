@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+const LIMIT = 5 * 60 * 1000;
+const access = sessionStorage.getItem("cartel_access");
+const time = sessionStorage.getItem("cartel_time");
+
+if(access && time && Date.now() - time < LIMIT){
+  window.location.replace("index.html");
+}
+  </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ACCESS · SOUL CARTEL</title>
