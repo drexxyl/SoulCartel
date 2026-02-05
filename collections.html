@@ -1,278 +1,196 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>COLLECTIONS · SOUL CARTEL</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Cinzel:wght@600&display=swap" rel="stylesheet">
-
-  <!-- Three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
-
-  <style>
-    :root {
-      --bg: #000;
-      --text: #f5f5f5;
-      --muted: rgba(255,255,255,0.55);
-      --silver: #bfbfbf;
-      --red: #8b0000;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COLLECTIONS · MALEVOLENT SHRINE</title>  <!-- ACCESS GUARD -->  <script>
+    if (sessionStorage.getItem("cartel_access") !== "granted") {
+      window.location.replace("gate.html");
+    }
+  </script>  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400&display=swap" rel="stylesheet">  <style>
+    :root{
+      --bg:#050505;
+      --text:#eee;
+      --muted:rgba(255,255,255,.45);
+      --red:#7a0000;
+      --depth:60px;
     }
 
-    * { margin:0; padding:0; box-sizing:border-box; }
+    *{box-sizing:border-box;margin:0;padding:0}
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top, #0b0b0b, #000);
-      color: var(--text);
-      overflow-x: hidden;
+    body{
+      background:radial-gradient(circle at top,#0c0c0c,#000 70%);
+      color:var(--text);
+      font-family:Inter,sans-serif;
+      min-height:100vh;
+      overflow-x:hidden;
+      perspective:1200px;
     }
 
-    nav {
-      position: fixed;
-      top: 24px;
-      right: 32px;
-      z-index: 20;
-      display: flex;
-      gap: 24px;
+    /* subtle moving grain */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.04"/></svg>');
+      pointer-events:none;
+      mix-blend-mode:overlay;
+      animation:grain 6s steps(6) infinite;
     }
 
-    nav a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      position: relative;
+    @keyframes grain{to{transform:translate(-20px,20px)}}
+
+    header{
+      text-align:center;
+      padding:4rem 1rem 2rem;
     }
 
-    nav a::after {
-      content: "";
-      position: absolute;
-      bottom: -6px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: var(--silver);
-      transition: width .4s ease;
+    header h1{
+      font-family:Cinzel,serif;
+      letter-spacing:.45em;
+      font-size:1.1rem;
+      opacity:.8;
     }
 
-    nav a:hover::after {
-      width: 100%;
+    header p{
+      margin-top:1rem;
+      font-size:.7rem;
+      letter-spacing:.35em;
+      color:var(--muted);
     }
 
-    header {
-      height: 60vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+    /* SHRINE FIELD */
+    .shrine{
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:4rem;
+      padding:4rem 6vw 6rem;
+      transform-style:preserve-3d;
     }
 
-    header h1 {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(3rem, 7vw, 6rem);
-      letter-spacing: 0.25em;
-      color: var(--silver);
+    /* floating altar cards */
+    .artifact{
+      position:relative;
+      height:320px;
+      transform-style:preserve-3d;
+      transition:transform .6s ease, box-shadow .6s ease;
+      cursor:pointer;
     }
 
-    section {
-      min-height: 100vh;
-      position: relative;
+    .artifact::before{
+      content:"";
+      position:absolute;
+      inset:-10px;
+      background:linear-gradient(180deg,rgba(255,255,255,.08),transparent 60%);
+      transform:translateZ(calc(var(--depth) * -1));
+      filter:blur(18px);
+      opacity:.35;
     }
 
-    canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
+    .artifact:hover{
+      transform:rotateY(-12deg) rotateX(6deg) translateZ(20px);
     }
 
-    .overlay {
-      position: relative;
-      z-index: 2;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
-      gap: 4rem;
-      padding: 12rem 10vw;
+    .slab{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,#0b0b0b,#020202);
+      border:1px solid rgba(255,255,255,.08);
+      transform:translateZ(var(--depth));
+      padding:2rem;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
     }
 
-    .collection-card {
-      backdrop-filter: blur(12px);
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 3rem;
-      border-radius: 22px;
-      transition: transform .6s cubic-bezier(.22,1,.36,1);
+    .slab h2{
+      font-family:Cinzel,serif;
+      font-size:.85rem;
+      letter-spacing:.35em;
+      opacity:.9;
     }
 
-    .collection-card:hover {
-      transform: translateY(-12px);
-      border-color: rgba(255,255,255,0.25);
+    .sigil{
+      width:100%;
+      height:140px;
+      border:1px dashed rgba(255,255,255,.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:.6rem;
+      letter-spacing:.4em;
+      color:var(--muted);
+      animation:breathe 5s ease-in-out infinite;
     }
 
-    .collection-card h2 {
-      letter-spacing: 0.2em;
-      margin-bottom: 1rem;
-      color: var(--silver);
+    @keyframes breathe{
+      0%,100%{opacity:.4}
+      50%{opacity:1}
     }
 
-    .collection-card p {
-      color: var(--muted);
-      line-height: 1.8;
+    .meta{
+      font-size:.6rem;
+      letter-spacing:.3em;
+      color:var(--muted);
     }
 
-    footer {
-      text-align: center;
-      padding: 4rem 0;
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      color: rgba(255,255,255,0.4);
-      border-top: 1px solid rgba(255,255,255,0.08);
+    /* ritual hover glow */
+    .artifact:hover .slab{
+      box-shadow:0 40px 80px rgba(122,0,0,.25);
     }
-  </style>
-</head>
-  <script>
-const LIMIT = 5 * 60 * 1000;
 
-const access = sessionStorage.getItem("cartel_access");
-const time = sessionStorage.getItem("cartel_time");
+    /* page veil for transitions */
+    .veil{
+      position:fixed;
+      inset:0;
+      background:#000;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .8s ease;
+      z-index:50;
+    }
 
-if(!access || !time || Date.now() - time > LIMIT){
-  sessionStorage.clear();
-  document.body.style.opacity = 0;
-  setTimeout(()=>{
-    location.href="gate.html";
-  },300);
-}
-</script>
-  <script>
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){
-    sessionStorage.clear();
-  }
-});
-</script>
-<body>
+    .veil.show{opacity:1}
 
-<nav>
-  <a href="index.html">HOME</a>
-  <a href="about.html">ABOUT</a>
-  <a href="collections.html">COLLECTIONS</a>
-</nav>
-
-<canvas id="scene"></canvas>
-
-<header>
+    footer{
+      text-align:center;
+      padding-bottom:3rem;
+      font-size:.6rem;
+      letter-spacing:.35em;
+      color:var(--muted);
+      opacity:.5;
+    }
+  </style></head><body><div class="veil" id="veil"></div><header>
   <h1>COLLECTIONS</h1>
-</header>
-
-<section>
-  <div class="overlay">
-    <div class="collection-card">
-      <h2>OBSIDIAN</h2>
-      <p>
-        Heavyweight silhouettes forged in silence.
-        Matte textures. Controlled mass.
-      </p>
+  <p>ARTIFACTS WITHIN THE MALEVOLENT SHRINE</p>
+</header><section class="shrine">  <div class="artifact" data-link="artifact-1.html">
+    <div class="slab">
+      <h2>RELIC I</h2>
+      <div class="sigil">SEALED</div>
+      <div class="meta">STATUS · DORMANT</div>
     </div>
-
-    <div class="collection-card">
-      <h2>BLOODLINE</h2>
-      <p>
-        Limited circulation.
-        Deep crimson undertones.
-        Precision cuts.
-      </p>
+  </div>  <div class="artifact" data-link="artifact-2.html">
+    <div class="slab">
+      <h2>RELIC II</h2>
+      <div class="sigil">RESTRICTED</div>
+      <div class="meta">STATUS · WATCHED</div>
     </div>
-
-    <div class="collection-card">
-      <h2>VOID</h2>
-      <p>
-        Reduction to essence.
-        Minimal form.
-        Maximum presence.
-      </p>
+  </div>  <div class="artifact" data-link="artifact-3.html">
+    <div class="slab">
+      <h2>RELIC III</h2>
+      <div class="sigil">FORBIDDEN</div>
+      <div class="meta">STATUS · ACTIVE</div>
     </div>
-  </div>
-</section>
-
-<footer>
-  © 2025 SOUL CARTEL · NOTHING IS RANDOM
-</footer>
-
-<script>
-  const canvas = document.getElementById("scene");
-  const scene = new THREE.Scene();
-
-  const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    100
-  );
-  camera.position.z = 7;
-
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    alpha: true,
-    antialias: true,
-    powerPreference: "high-performance"
-  });
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  const objects = [];
-
-  const material = new THREE.MeshStandardMaterial({
-    color: 0xaaaaaa,
-    metalness: 1,
-    roughness: 0.2
-  });
-
-  const geometries = [
-    new THREE.IcosahedronGeometry(1.2, 0),
-    new THREE.TorusGeometry(1.1, 0.35, 16, 100),
-    new THREE.OctahedronGeometry(1.2)
-  ];
-
-  geometries.forEach((geo, i) => {
-    const mesh = new THREE.Mesh(geo, material.clone());
-    mesh.position.x = (i - 1) * 3.2;
-    scene.add(mesh);
-    objects.push(mesh);
-  });
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-
-  const keyLight = new THREE.PointLight(0xffffff, 1.2);
-  keyLight.position.set(5, 5, 5);
-  scene.add(keyLight);
-
-  const redLight = new THREE.PointLight(0x8b0000, 1);
-  redLight.position.set(-5, -5, -5);
-  scene.add(redLight);
-
-  const clock = new THREE.Clock();
-
-  function animate() {
-    const t = clock.getElapsedTime();
-    objects.forEach((obj, i) => {
-      obj.rotation.y += 0.002 + i * 0.0005;
-      obj.rotation.x = Math.sin(t * 0.3 + i) * 0.1;
-    });
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-</script>
-
-</body>
+  </div></section><footer>ENTER AT YOUR OWN RISK</footer><script>
+  // cinematic transition on click
+  document.querySelectorAll('.artifact').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const veil=document.getElementById('veil');
+      veil.classList.add('show');
+      setTimeout(()=>{
+        location.href=card.dataset.link;
+      },800);
+    })
+  })
+</script></body>
 </html>
