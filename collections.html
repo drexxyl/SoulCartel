@@ -145,6 +145,13 @@ if(!access || !time || Date.now() - time > LIMIT){
   },300);
 }
 </script>
+  <script>
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){
+    sessionStorage.clear();
+  }
+});
+</script>
 <body>
 
 <nav>
