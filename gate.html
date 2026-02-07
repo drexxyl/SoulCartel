@@ -219,7 +219,13 @@ window.addEventListener("resize",()=>{
       localStorage.removeItem("MARK_NEW");
     }, 3500);
   }
-</script>
+</script> 
 <script src="js/mark.js"></script>
+  <div id="markCorner"></div>
+
+<script>
+  document.getElementById("markCorner").innerText =
+    `THE MARK: ${localStorage.getItem("THE_MARK")}`;
+</script>
 </body>
 </html>
