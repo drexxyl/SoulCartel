@@ -287,7 +287,15 @@ document.addEventListener("visibilitychange",()=>{
   </div>
 </section>
 
-<footer>© 2025 SOUL CARTEL · ALL ACCESS CONTROLLED</footer>
+<footer>
+  <div id="markCorner"></div>
+
+<script>
+  document.getElementById("markCorner").innerText =
+    `THE MARK: ${localStorage.getItem("THE_MARK")}`;
+</script>
+  © 2025 SOUL CARTEL · ALL ACCESS CONTROLLED
+</footer>
 
 <script>
   const sections=document.querySelectorAll("section");
