@@ -113,6 +113,9 @@
     }
   </style>
 </head>
+if (localStorage.getItem("cartel_sealed") === "true") {
+  location.replace("gate.html");
+}
   <script>
 const LIMIT = 5 * 60 * 1000;
 
@@ -246,4 +249,5 @@ document.addEventListener("visibilitychange",()=>{
 </body>
 
 </html>
+
 
