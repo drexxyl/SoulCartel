@@ -113,6 +113,7 @@ button:hover{
     <p>AUTHORITY · V.</p>
 
     <div class="controls">
+<button id="unseal">UNSEAL SITE</button>
       <button onclick="enterWorld()">ENTER WORLD</button>
       <button onclick="killSwitch()">KILL SWITCH</button>
       <button onclick="toggleShadow()">SHADOW MODE</button>
@@ -200,6 +201,15 @@ function toggleShadow(){
     !s ? "MODE · SHADOW" : "MODE · VISIBLE";
 }
 </script>
+<script>
+const unsealBtn = document.getElementById("unseal");
 
+if(unsealBtn){
+  unsealBtn.addEventListener("click", ()=>{
+    localStorage.removeItem("cartel_sealed");
+    alert("SITE UNSEALED");
+  });
+}
+</script>
 </body>
 </html>
