@@ -248,10 +248,33 @@ document.addEventListener("visibilitychange",()=>{
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
   </script>
+<div id="markOverlay">
+  <div class="markBox">
+    <div class="markTitle">YOU HAVE BEEN MARKED</div>
+    <div class="markValue"></div>
+  </div>
+</div>
 
+<script src="js/mark.js"></script>
+<script>
+  const isNew = localStorage.getItem("MARK_NEW") === "true";
+  const overlay = document.getElementById("markOverlay");
+  const markValue = document.querySelector(".markValue");
+
+  markValue.innerText = localStorage.getItem("THE_MARK");
+
+  if (isNew) {
+    overlay.classList.add("show");
+    setTimeout(() => {
+      overlay.classList.remove("show");
+      localStorage.removeItem("MARK_NEW");
+    }, 3500);
+  }
+</script>
 </body>
 
 </html>
+
 
 
 
