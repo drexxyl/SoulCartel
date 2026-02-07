@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ACCESS · SOUL CARTEL</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --bg:#000;
-  --text:#eee;
-  --muted:rgba(255,255,255,.5);
-  --red:#8b0000;
+  --text:#eaeaea;
+  --muted:rgba(255,255,255,.45);
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -28,184 +27,153 @@ body{
   overflow:hidden;
 }
 
-.veil{
-  position:fixed;
-  inset:0;
-  background:#000;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity 1.2s ease;
-  z-index:10;
-}
-
 .gate{
   text-align:center;
-  z-index:2;
 }
 
-#sigil{
+h1{
   font-family:Cinzel,serif;
-  letter-spacing:.4em;
-  opacity:.8;
-  transition:all .8s ease;
+  letter-spacing:.45em;
+  font-size:2.6rem;
 }
 
 .status{
-  margin-top:1rem;
-  font-size:.7rem;
-  letter-spacing:.3em;
+  margin-top:1.4rem;
+  font-size:.75rem;
+  letter-spacing:.35em;
   color:var(--muted);
-  opacity:0;
-  transition:.4s;
+  min-height:1em;
 }
-.status.show{opacity:1}
 
 input{
-  margin-top:1.5rem;
+  margin-top:2rem;
   background:transparent;
-  border:1px solid rgba(255,255,255,.2);
-  color:white;
+  border:1px solid rgba(255,255,255,.25);
   padding:.7rem 1rem;
+  color:white;
   text-align:center;
   letter-spacing:.3em;
   outline:none;
 }
 
-.error{
-  margin-top:1rem;
-  font-size:.7rem;
-  color:var(--red);
-  letter-spacing:.25em;
-  opacity:0;
-  transition:.3s;
-}
-.error.show{opacity:1}
+.hidden{opacity:0}
+.show{opacity:1}
 
-/* ===== ANIMATIONS ===== */
+/* ───────── ANIMATIONS ───────── */
 
-/* GOD */
-.god #sigil{animation:god 1s ease forwards}
-@keyframes god{
-  0%{transform:scale(1)}
-  40%{transform:scale(1.15);filter:blur(1px)}
-  100%{transform:scale(1);filter:none}
+.verify{animation:verify 1.5s infinite}
+@keyframes verify{
+  0%{opacity:.3}
+  50%{opacity:1}
+  100%{opacity:.3}
 }
 
-/* SIN */
-.sin{animation:sin .8s ease}
-@keyframes sin{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(18px)}
-  100%{transform:translateY(0)}
+.tier-sin{animation:shake .4s linear 3}
+@keyframes shake{
+  0%{transform:translate(0)}
+  25%{transform:translate(-3px,2px)}
+  50%{transform:translate(3px,-2px)}
+  75%{transform:translate(-2px,3px)}
+  100%{transform:translate(0)}
 }
 
-/* DEATH */
-.death #sigil{animation:death 1.4s ease}
-@keyframes death{
-  0%{opacity:1}
-  50%{opacity:.25}
+.tier-death{animation:fade 2s forwards}
+@keyframes fade{
+  to{opacity:0}
+}
+
+.tier-soul{animation:soft 1.5s forwards}
+@keyframes soft{
+  from{opacity:.2}
+  to{opacity:1}
+}
+
+.tier-cartel{animation:rise 1.2s forwards}
+@keyframes rise{
+  from{transform:translateY(20px);opacity:0}
+  to{transform:none;opacity:1}
+}
+
+.tier-apocalypse{animation:burn 3s forwards}
+@keyframes burn{
+  0%{opacity:0}
   100%{opacity:1}
 }
 
-/* SOUL */
-.soul #sigil{animation:soul 1.2s ease}
-@keyframes soul{
-  0%{letter-spacing:.3em}
-  50%{letter-spacing:.7em}
-  100%{letter-spacing:.3em}
-}
-
-/* CARTEL */
-.cartel{animation:cartel .7s ease}
-@keyframes cartel{
-  0%{transform:translateX(0)}
-  50%{transform:translateX(10px)}
-  100%{transform:translateX(0)}
-}
-
-/* APOCALYPSE */
-.apocalypse{animation:apoc 1.8s ease}
-@keyframes apoc{
-  0%{filter:brightness(1)}
-  100%{filter:brightness(.6)}
-}
-
-/* ADMIN UI */
-.admin{
+.admin-ui{
   position:fixed;
-  bottom:30px;
-  right:30px;
-  font-size:.6rem;
+  bottom:20px;
+  right:20px;
+  font-size:.65rem;
   letter-spacing:.3em;
-  opacity:0;
-  transition:.6s;
+  opacity:.35;
+  display:none;
 }
-.admin.show{opacity:.6}
 </style>
 </head>
 
 <body>
 
-<div class="veil"></div>
-
 <div class="gate" id="gate">
-  <h1 id="sigil">ACCESS</h1>
-  <div class="status" id="status">VERIFYING SOUL SIGNATURE</div>
-  <input id="pw" type="password" autocomplete="off" autofocus>
-  <div class="error" id="err">SIGNATURE REJECTED</div>
+  <h1>ACCESS</h1>
+  <div class="status" id="status">ENTER AUTHORIZATION CODE</div>
+  <input id="pw" type="password" autofocus>
 </div>
 
-<div class="admin" id="adminUI">ADMIN AUTHORITY ACTIVE</div>
+<div class="admin-ui" id="admin">ADMIN · V.</div>
 
 <script>
 const ACCESS = {
-  "V.":{rank:"GOD",anim:"god",delay:500,admin:true,msg:"ABSOLUTE AUTHORITY"},
-  "SIN":{rank:2,anim:"sin",delay:800,msg:"SIN ACCEPTED"},
-  "DEATH":{rank:3,anim:"death",delay:1100,msg:"DEATH VERIFIED"},
-  "SOUL":{rank:4,anim:"soul",delay:1000,msg:"SOUL MATCH"},
-  "CARTEL":{rank:5,anim:"cartel",delay:900,msg:"CARTEL GRANTED"},
-  "APOCALYPSE":{rank:6,anim:"apocalypse",delay:1600,msg:"FINAL EVENT"}
+  "V.":"admin",
+  "SIN":"sin",
+  "DEATH":"death",
+  "SOUL":"soul",
+  "CARTEL":"cartel",
+  "APOCALYPSE":"apocalypse"
 };
 
 const pw = document.getElementById("pw");
 const gate = document.getElementById("gate");
-const veil = document.querySelector(".veil");
 const status = document.getElementById("status");
-const err = document.getElementById("err");
-const adminUI = document.getElementById("adminUI");
+const admin = document.getElementById("admin");
 
-pw.addEventListener("keydown",e=>{
-  if(e.key!=="Enter")return;
+pw.addEventListener("keydown", e=>{
+  if(e.key!=="Enter") return;
 
-  const v = pw.value.trim().toUpperCase();
-  gate.className="gate";
-  err.classList.remove("show");
+  const code = pw.value.trim().toUpperCase();
+  pw.value="";
 
-  if(!ACCESS[v]){
-    err.classList.add("show");
-    pw.value="";
+  if(!ACCESS[code]){
+    status.textContent="ACCESS DENIED";
+    gate.classList.add("tier-sin");
+    setTimeout(()=>gate.className="gate",600);
     return;
   }
 
-  const a = ACCESS[v];
+  // VERIFY PHASE
   status.textContent="VERIFYING SOUL SIGNATURE";
-  status.classList.add("show");
-
-  gate.classList.add(a.anim);
+  status.classList.add("verify");
 
   setTimeout(()=>{
-    status.textContent=a.msg;
-  },300);
+    status.classList.remove("verify");
+    status.textContent="ACCESS GRANTED";
 
-  if(a.admin){
-    adminUI.classList.add("show");
-  }
+    const tier = ACCESS[code];
+    gate.classList.add(`tier-${tier}`);
 
-  sessionStorage.setItem("cartel_access","true");
-  sessionStorage.setItem("cartel_rank",a.rank);
+    sessionStorage.setItem("cartel_access","true");
+    sessionStorage.setItem("cartel_tier",tier);
 
-  setTimeout(()=>veil.style.opacity=1,a.delay);
-  setTimeout(()=>location.href="home.html",a.delay+700);
+    if(code==="V."){
+      admin.style.display="block";
+      sessionStorage.setItem("cartel_admin","true");
+    }
+
+    setTimeout(()=>{
+      location.href="home.html";
+    }, tier==="apocalypse" ? 3000 : 1500);
+
+  },1500);
 });
 </script>
 
