@@ -3,177 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <title>ACCESS · SOUL CARTEL</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
 
 <style>
 :root{
-  --bg:#000;
-  --text:#eaeaea;
+  --text:#f5f5f5;
   --muted:rgba(255,255,255,.45);
+  --red:#8b0000;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  background:radial-gradient(circle at top,#0b0b0b,#000);
+  background:#000;
   color:var(--text);
   font-family:Inter,sans-serif;
+  height:100vh;
+  overflow:hidden;
+}
+
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+}
+
+.ui{
+  position:relative;
+  z-index:2;
   height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow:hidden;
-}
-
-.gate{
   text-align:center;
 }
 
 h1{
   font-family:Cinzel,serif;
   letter-spacing:.45em;
-  font-size:2.6rem;
+  font-size:2.4rem;
+  opacity:.9;
 }
 
-.status{
-  margin-top:1.4rem;
-  font-size:.75rem;
+p{
+  margin-top:1.2rem;
+  font-size:.7rem;
   letter-spacing:.35em;
   color:var(--muted);
-  min-height:1em;
 }
 
 input{
-  margin-top:2rem;
+  margin-top:2.4rem;
   background:transparent;
-  border:1px solid rgba(255,255,255,.25);
-  padding:.7rem 1rem;
+  border:1px solid rgba(255,255,255,.2);
   color:white;
+  padding:.7rem 1.2rem;
   text-align:center;
   letter-spacing:.3em;
   outline:none;
 }
 
-.hidden{opacity:0}
-.show{opacity:1}
-
-/* ───────── ANIMATIONS ───────── */
-
-.verify{animation:verify 1.5s infinite}
-@keyframes verify{
-  0%{opacity:.3}
-  50%{opacity:1}
-  100%{opacity:.3}
-}
-
-.tier-sin{animation:shake .4s linear 3}
-@keyframes shake{
-  0%{transform:translate(0)}
-  25%{transform:translate(-3px,2px)}
-  50%{transform:translate(3px,-2px)}
-  75%{transform:translate(-2px,3px)}
-  100%{transform:translate(0)}
-}
-
-.tier-death{animation:fade 2s forwards}
-@keyframes fade{
-  to{opacity:0}
-}
-
-.tier-soul{animation:soft 1.5s forwards}
-@keyframes soft{
-  from{opacity:.2}
-  to{opacity:1}
-}
-
-.tier-cartel{animation:rise 1.2s forwards}
-@keyframes rise{
-  from{transform:translateY(20px);opacity:0}
-  to{transform:none;opacity:1}
-}
-
-.tier-apocalypse{animation:burn 3s forwards}
-@keyframes burn{
-  0%{opacity:0}
-  100%{opacity:1}
-}
-
-.admin-ui{
-  position:fixed;
-  bottom:20px;
-  right:20px;
+.error{
+  margin-top:1rem;
   font-size:.65rem;
   letter-spacing:.3em;
-  opacity:.35;
-  display:none;
+  color:var(--red);
+  opacity:0;
+  transition:.3s;
+}
+
+.error.show{opacity:1}
+
+.unlock h1{
+  animation:unlock 1.2s forwards;
+}
+
+@keyframes unlock{
+  0%{opacity:1;letter-spacing:.4em}
+  50%{opacity:.4;letter-spacing:1em}
+  100%{opacity:0}
 }
 </style>
 </head>
 
 <body>
 
-<div class="gate" id="gate">
-  <h1>ACCESS</h1>
-  <div class="status" id="status">ENTER AUTHORIZATION CODE</div>
-  <input id="pw" type="password" autofocus>
+<canvas id="scene"></canvas>
+
+<div class="ui">
+  <div class="gate">
+    <h1>ACCESS</h1>
+    <p>VERIFYING SOUL SIGNATURE</p>
+    <input id="pw" type="password" autofocus>
+    <div class="error" id="err">ACCESS DENIED</div>
+  </div>
 </div>
 
-<div class="admin-ui" id="admin">ADMIN · V.</div>
-
 <script>
-const ACCESS = {
-  "V.":"admin",
-  "SIN":"sin",
-  "DEATH":"death",
-  "SOUL":"soul",
-  "CARTEL":"cartel",
-  "APOCALYPSE":"apocalypse"
-};
+/* =======================
+   PASSWORD SYSTEM
+======================= */
+const PASSWORDS = ["V.","SIN","DEATH","SOUL","CARTEL","APOCALYPSE"];
 
 const pw = document.getElementById("pw");
-const gate = document.getElementById("gate");
-const status = document.getElementById("status");
-const admin = document.getElementById("admin");
+const err = document.getElementById("err");
+const gate = document.querySelector(".gate");
 
 pw.addEventListener("keydown", e=>{
-  if(e.key!=="Enter") return;
+  if(e.key==="Enter"){
+    const val = pw.value.toUpperCase();
 
-  const code = pw.value.trim().toUpperCase();
-  pw.value="";
+    if(PASSWORDS.includes(val)){
+      gate.classList.add("unlock");
 
-  if(!ACCESS[code]){
-    status.textContent="ACCESS DENIED";
-    gate.classList.add("tier-sin");
-    setTimeout(()=>gate.className="gate",600);
-    return;
-  }
+      if(val==="V."){
+        sessionStorage.setItem("cartel_admin","true");
+        setTimeout(()=>location.href="admin.html",1200);
+      }else{
+        sessionStorage.setItem("cartel_access","true");
+        setTimeout(()=>location.href="home.html",1200);
+      }
 
-  // VERIFY PHASE
-  status.textContent="VERIFYING SOUL SIGNATURE";
-  status.classList.add("verify");
-
-  setTimeout(()=>{
-    status.classList.remove("verify");
-    status.textContent="ACCESS GRANTED";
-
-    const tier = ACCESS[code];
-    gate.classList.add(`tier-${tier}`);
-
-    sessionStorage.setItem("cartel_access","true");
-    sessionStorage.setItem("cartel_tier",tier);
-
-    if(code==="V."){
-      admin.style.display="block";
-      sessionStorage.setItem("cartel_admin","true");
+    }else{
+      err.classList.add("show");
+      pw.value="";
+      setTimeout(()=>err.classList.remove("show"),1200);
     }
+  }
+});
 
-    setTimeout(()=>{
-      location.href="home.html";
-    }, tier==="apocalypse" ? 3000 : 1500);
+/* =======================
+   THREE.JS — LIVING GATE
+======================= */
+const canvas = document.getElementById("scene");
+const scene = new THREE.Scene();
 
-  },1500);
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.z = 4;
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  alpha:true,
+  antialias:true,
+  powerPreference:"high-performance"
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+// Geometry — feels like a seal, not decoration
+const geometry = new THREE.TorusGeometry(1.2,0.08,16,120);
+const material = new THREE.MeshStandardMaterial({
+  color:0xbfbfbf,
+  metalness:1,
+  roughness:0.25
+});
+const ring = new THREE.Mesh(geometry, material);
+scene.add(ring);
+
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff,.3));
+
+const whiteLight = new THREE.PointLight(0xffffff,.9);
+whiteLight.position.set(4,4,4);
+scene.add(whiteLight);
+
+const redLight = new THREE.PointLight(0x8b0000,.6);
+redLight.position.set(-4,-4,-4);
+scene.add(redLight);
+
+// Animate — subtle, alive, not distracting
+const clock = new THREE.Clock();
+function animate(){
+  const t = clock.getElapsedTime();
+  ring.rotation.y = t * 0.2;
+  ring.rotation.x = Math.sin(t * 0.3) * 0.1;
+  renderer.render(scene,camera);
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Resize
+window.addEventListener("resize",()=>{
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
 
