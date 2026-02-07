@@ -189,7 +189,8 @@ function enterWorld(){
 
 function killSwitch(){
   localStorage.setItem("cartel_sealed","true");
-  document.getElementById("status").innerText="REALITY · SEALED";
+  localStorage.removeItem("cartel_access");
+  document.getElementById("status").innerText = "REALITY · SEALED";
 }
 
 function toggleShadow(){
