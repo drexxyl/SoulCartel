@@ -232,6 +232,12 @@ document.addEventListener("visibilitychange",()=>{
 });
   </script>
 <body>
+  <div id="markOverlay">
+  <div class="markBox">
+    <div class="markTitle">YOU HAVE BEEN MARKED</div>
+    <div class="markValue" id="markValue"></div>
+  </div>
+  </div>
 <script>
   if (localStorage.getItem("cartel_sealed") === "true") {
     location.replace("gate.html");
