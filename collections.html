@@ -144,6 +144,13 @@ footer{
 </head>
 
 <body>
+  
+
+<script>
+  if (localStorage.getItem("cartel_sealed") === "true") {
+    location.replace("gate.html");
+  }
+</script>
 
 <nav>
   <a href="home.html">HOME</a>
