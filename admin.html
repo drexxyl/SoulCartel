@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DOMAIN · V.</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
 
 <style>
 :root{
-  --text:#f2f2f2;
+  --text:#f5f5f5;
   --muted:rgba(255,255,255,.45);
+  --glass:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.15);
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -23,132 +26,164 @@ body{
   overflow:hidden;
 }
 
-/* DEPTH LAYERS */
-.layer{
-  position:absolute;
-  inset:-20%;
-  background:
-    radial-gradient(circle at 30% 40%, rgba(255,255,255,.06), transparent 45%),
-    radial-gradient(circle at 70% 60%, rgba(255,255,255,.04), transparent 50%);
-  filter:blur(60px);
+/* CANVAS */
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
 }
 
-.layer.back{transform:translateZ(-400px)}
-.layer.mid{transform:translateZ(-200px)}
-.layer.front{transform:translateZ(-80px)}
-
-.scene{
+/* UI LAYER */
+.ui{
   position:relative;
+  z-index:2;
   height:100%;
   display:flex;
   align-items:center;
   justify-content:center;
-  perspective:1400px;
+  text-align:center;
 }
 
-.core{
-  text-align:center;
-  transform-style:preserve-3d;
+/* PANEL */
+.panel{
+  padding:3rem 3.5rem;
+  background:var(--glass);
+  border:1px solid var(--border);
+  backdrop-filter:blur(16px);
+  border-radius:20px;
+  max-width:90vw;
 }
 
 /* TEXT */
 h1{
   font-family:Cinzel,serif;
-  font-size:clamp(2.4rem,7vw,3.2rem);
-  letter-spacing:.45em;
-  transform:translateZ(120px) translateX(.22em);
-  animation:breathe 4s ease-in-out infinite;
+  font-size:clamp(2rem,6vw,3rem);
+  letter-spacing:.4em;
+  margin-bottom:1rem;
 }
 
 p{
-  margin-top:1.4rem;
   font-size:.7rem;
-  letter-spacing:.32em;
+  letter-spacing:.3em;
   color:var(--muted);
-  transform:translateZ(90px) translateX(.16em);
 }
 
-@keyframes breathe{
-  0%,100%{opacity:.55}
-  50%{opacity:1}
-}
-
-/* COMMANDS */
-.commands{
-  margin-top:4rem;
+/* BUTTONS */
+.controls{
+  margin-top:3rem;
   display:flex;
-  gap:2rem;
+  flex-wrap:wrap;
+  gap:1.5rem;
   justify-content:center;
-  transform:translateZ(160px);
 }
 
-.cmd{
+button{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:.8rem 1.6rem;
   font-size:.65rem;
   letter-spacing:.25em;
   cursor:pointer;
-  opacity:.6;
   transition:.4s;
 }
 
-.cmd:hover{opacity:1}
+button:hover{
+  border-color:white;
+  background:rgba(255,255,255,.08);
+}
 
 /* STATUS */
 .status{
-  margin-top:2.5rem;
+  margin-top:2rem;
   font-size:.6rem;
   letter-spacing:.3em;
-  opacity:.5;
-  transform:translateZ(60px);
-}
-
-/* MOBILE */
-@media(max-width:480px){
-  h1{letter-spacing:.38em}
-  p{letter-spacing:.28em}
+  opacity:.6;
 }
 </style>
 </head>
 
 <body>
 
-<div class="layer back"></div>
-<div class="layer mid"></div>
-<div class="layer front"></div>
+<canvas id="bg"></canvas>
 
-<div class="scene">
-  <div class="core" id="core">
+<div class="ui">
+  <div class="panel">
     <h1>DOMAIN COGNIZED</h1>
     <p>AUTHORITY · V.</p>
 
-    <div class="commands">
-      <div class="cmd" onclick="enterWorld()">ENTER WORLD</div>
-      <div class="cmd" onclick="killSwitch()">KILL SWITCH</div>
-      <div class="cmd" onclick="toggleShadow()">SHADOW MODE</div>
+    <div class="controls">
+      <button onclick="enterWorld()">ENTER WORLD</button>
+      <button onclick="killSwitch()">KILL SWITCH</button>
+      <button onclick="toggleShadow()">SHADOW MODE</button>
     </div>
 
-    <div class="status" id="status">
-      REALITY · UNSEALED
-    </div>
+    <div class="status" id="status">REALITY · UNSEALED</div>
   </div>
 </div>
 
 <script>
-/* PARALLAX — ALWAYS ALIVE */
-let x=0,y=0;
-document.addEventListener("mousemove",e=>{
-  x=(e.clientX/window.innerWidth-.5)*10;
-  y=(e.clientY/window.innerHeight-.5)*10;
+/* ===== THREE.JS BACKGROUND ===== */
+const canvas = document.getElementById("bg");
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth/window.innerHeight,
+  0.1,
+  100
+);
+camera.position.z = 4;
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  alpha:true,
+  antialias:true
 });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+/* OBJECT */
+const geo = new THREE.TorusKnotGeometry(1,0.3,120,16);
+const mat = new THREE.MeshStandardMaterial({
+  color:0xaaaaaa,
+  metalness:1,
+  roughness:0.15
+});
+const mesh = new THREE.Mesh(geo, mat);
+scene.add(mesh);
+
+/* LIGHTS */
+scene.add(new THREE.AmbientLight(0xffffff,0.4));
+
+const key = new THREE.PointLight(0xffffff,1);
+key.position.set(5,5,5);
+scene.add(key);
+
+const fill = new THREE.PointLight(0x8b0000,0.8);
+fill.position.set(-5,-5,-5);
+scene.add(fill);
+
+/* ANIMATE */
+const clock = new THREE.Clock();
 function animate(){
-  document.getElementById("core").style.transform=
-    `rotateX(${-y}deg) rotateY(${x}deg)`;
+  const t = clock.getElapsedTime();
+  mesh.rotation.y = t * 0.25;
+  mesh.rotation.x = Math.sin(t * 0.2) * 0.2;
+  renderer.render(scene,camera);
   requestAnimationFrame(animate);
 }
 animate();
 
-/* POWERS */
+/* RESIZE */
+window.addEventListener("resize",()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+/* ===== ADMIN POWERS ===== */
 function enterWorld(){
-  sessionStorage.setItem("cartel_access","true");
   location.href="home.html";
 }
 
@@ -158,10 +193,10 @@ function killSwitch(){
 }
 
 function toggleShadow(){
-  const s=localStorage.getItem("cartel_shadow")==="true";
+  const s = localStorage.getItem("cartel_shadow")==="true";
   localStorage.setItem("cartel_shadow",!s);
-  document.getElementById("status").innerText=
-    !s?"MODE · SHADOW":"MODE · VISIBLE";
+  document.getElementById("status").innerText =
+    !s ? "MODE · SHADOW" : "MODE · VISIBLE";
 }
 </script>
 
