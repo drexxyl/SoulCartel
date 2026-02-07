@@ -180,7 +180,11 @@ document.addEventListener("visibilitychange",()=>{
 });
   </script>
 <body>
-
+<script>
+  if (localStorage.getItem("cartel_sealed") === "true") {
+    location.replace("gate.html");
+  }
+</script>
 <nav>
   <a href="index.html">HOME</a>
   <a href="about.html">ABOUT</a>
