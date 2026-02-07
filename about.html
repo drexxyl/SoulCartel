@@ -182,6 +182,12 @@ document.addEventListener("visibilitychange",()=>{
     </div>
 
     <footer>
+      <div id="markCorner"></div>
+
+<script>
+  document.getElementById("markCorner").innerText =
+    `THE MARK: ${localStorage.getItem("THE_MARK")}`;
+</script>
       SOUL CARTEL © 2025
     </footer>
   </main>
@@ -275,6 +281,7 @@ document.addEventListener("visibilitychange",()=>{
 </body>
 
 </html>
+
 
 
 
