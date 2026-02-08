@@ -211,6 +211,17 @@ document.getElementById("shadowOff").onclick = () => {
   localStorage.removeItem("shadow_mode");
   location.reload();
 };
+  <script>
+  document.getElementById("shadowOn").onclick = () => {
+    localStorage.setItem("shadow_mode", "true");
+    location.reload();
+  };
+
+  document.getElementById("shadowOff").onclick = () => {
+    localStorage.removeItem("shadow_mode");
+    location.reload();
+  };
+  </script>
 <script>
 const unsealBtn = document.getElementById("unseal");
 
