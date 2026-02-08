@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="shadowOverlay" style="
+  position:fixed;
+  inset:0;
+  background:black;
+  color:white;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+">
+  SITE IS EVOLVING
+</div>
+
+<script>
+  if (localStorage.getItem("shadow_mode") === "true") {
+    document.getElementById("shadowOverlay").style.display = "flex";
+  }
+</script>
+
+</body>
+</html>
