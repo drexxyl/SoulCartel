@@ -144,10 +144,35 @@ button:hover{
     <p>AUTHORITY · V.</p>
 
     <div class="controls">
-      <section class="adminPanel">
-  <h2>MARK REGISTRY</h2>
+    <h3>MARK REGISTRY</h3>
   <div id="markList"></div>
-      </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const list = document.getElementById("markList");
+  const registry = JSON.parse(localStorage.getItem("MARK_REGISTRY")) || [];
+
+  if (!registry.length) {
+    list.innerHTML = "<p>No marks found</p>";
+    return;
+  }
+
+  list.innerHTML = registry.map(mark => `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0;">
+      <span>${mark}</span>
+      <button onclick="burnMark('${mark}')">BURN</button>
+    </div>
+  `).join("");
+});
+
+function burnMark(mark) {
+  let registry = JSON.parse(localStorage.getItem("MARK_REGISTRY")) || [];
+  registry = registry.filter(m => m !== mark);
+  localStorage.setItem("MARK_REGISTRY", JSON.stringify(registry));
+  location.reload();
+}
+</script>
       <button id="shadowOn">ACTIVATE SHADOW MODE</button>
 <button id="shadowOff">DISPEL SHADOW MODE</button>
 <button id="unseal">UNSEAL SITE</button>
