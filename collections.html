@@ -8,6 +8,50 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
 
 <style>
+  /* SHADOW MODE OVERLAY */
+#shadowMode {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #050505 0%, #000 70%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+
+#shadowMode.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* TEXT */
+.shadowText {
+  font-family: serif;
+  font-size: clamp(20px, 4vw, 42px);
+  letter-spacing: 0.4em;
+  color: rgba(255,255,255,0.85);
+  animation: pulseText 3.5s infinite ease-in-out;
+  text-align: center;
+}
+
+/* TEXT ANIMATION */
+@keyframes pulseText {
+  0% {
+    opacity: 0.15;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(0.98);
+  }
+}
 :root{
   --bg:#000;
   --panel:#0c0c0c;
