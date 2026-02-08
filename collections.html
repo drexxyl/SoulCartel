@@ -270,5 +270,10 @@ footer{
   }
 </script>
 <script src="js/mark.js"></script>
+  <script>
+  if (localStorage.getItem("shadow_mode") === "true") {
+    document.getElementById("shadowOverlay")?.classList.add("active");
+  }
+  </script>
 </body>
 </html>
