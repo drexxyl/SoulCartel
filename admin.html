@@ -267,5 +267,41 @@ if(unsealBtn){
   });
 }
 </script>
+  <script>
+  const REGISTRY_KEY = "mark_registry";
+  const BURNED_KEY = "burned_marks";
+
+  const markList = document.getElementById("markList");
+  let registry = JSON.parse(localStorage.getItem(REGISTRY_KEY)) || [];
+  let burned = JSON.parse(localStorage.getItem(BURNED_KEY)) || [];
+
+  function renderMarks() {
+    markList.innerHTML = "";
+
+    registry.forEach(mark => {
+      const row = document.createElement("div");
+      row.className = "markRow";
+
+      row.innerHTML = `
+        <span>${mark}</span>
+        <button onclick="burnMark('${mark}')">BURN</button>
+      `;
+
+      markList.appendChild(row);
+    });
+  }
+
+  function burnMark(mark) {
+    registry = registry.filter(m => m !== mark);
+    burned.push(mark);
+
+    localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry));
+    localStorage.setItem(BURNED_KEY, JSON.stringify(burned));
+
+    renderMarks();
+  }
+
+  renderMarks();
+  </script>
 </body>
 </html>
