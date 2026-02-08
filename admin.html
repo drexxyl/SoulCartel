@@ -202,6 +202,15 @@ function toggleShadow(){
     !s ? "MODE · SHADOW" : "MODE · VISIBLE";
 }
 </script>
+  document.getElementById("shadowOn").onclick = () => {
+  localStorage.setItem("shadow_mode", "true");
+  location.reload();
+};
+
+document.getElementById("shadowOff").onclick = () => {
+  localStorage.removeItem("shadow_mode");
+  location.reload();
+};
 <script>
 const unsealBtn = document.getElementById("unseal");
 
