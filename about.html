@@ -12,6 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
 
   <style>
+    
     :root {
       --bg: #000;
       --text: #f5f5f5;
@@ -22,7 +23,50 @@
 
     * { margin:0; padding:0; box-sizing:border-box; }
 
-    body {
+/* SHADOW MODE OVERLAY */
+#shadowMode {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #050505 0%, #000 70%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+
+#shadowMode.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* TEXT */
+.shadowText {
+  font-family: serif;
+  font-size: clamp(20px, 4vw, 42px);
+  letter-spacing: 0.4em;
+  color: rgba(255,255,255,0.85);
+  animation: pulseText 3.5s infinite ease-in-out;
+  text-align: center;
+}
+
+/* TEXT ANIMATION */
+@keyframes pulseText {
+  0% {
+    opacity: 0.15;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(0.98);
+  }
+}    body {
       font-family: 'Inter', sans-serif;
       background: radial-gradient(circle at top, #0b0b0b, #000);
       color: var(--text);
@@ -281,6 +325,7 @@ document.addEventListener("visibilitychange",()=>{
 </body>
 
 </html>
+
 
 
 
