@@ -13,3 +13,9 @@ if (!localStorage.getItem("THE_MARK")) {
   localStorage.setItem("MARK_NEW", "true");
   isNewMark = true;
 }
+const shadow = document.getElementById("shadowMode");
+
+if (localStorage.getItem("shadow_mode") === "true") {
+  shadow.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
