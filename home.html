@@ -37,6 +37,8 @@ display:flex;
 justify-content:center;
 align-items:center;
 flex-direction:column;
+overflow:hidden;
+transition:opacity 2s ease;
 }
 
 #introCanvas{
@@ -57,15 +59,14 @@ z-index:10;
 font-family:'Cinzel',serif;
 font-size:clamp(2rem,6vw,4rem);
 letter-spacing:.4em;
-color:#8b0000;
-text-shadow:0 0 40px crimson;
+color:#f5f5f5;
 }
 
 .introLine{
 margin-top:12px;
 font-size:.8rem;
 letter-spacing:.5em;
-color:#aaa;
+color:#8b0000;
 }
 
 /* ================= NAV ================= */
@@ -117,7 +118,7 @@ letter-spacing:.2em;
 color:var(--silver);
 opacity:0;
 transform:translateY(30px);
-animation:fadeUp 1.6s ease forwards;
+animation:fadeUp 1.6s ease forwards 1s;
 }
 
 .hero p{
@@ -206,22 +207,19 @@ to{opacity:1;transform:none}
 
 <body>
 
-<!-- ================= INTRO ================= -->
+<!-- ================= ICARUS INTRO ================= -->
 
 <div id="intro3D">
 <canvas id="introCanvas"></canvas>
-<div class="introText">
-<h1 class="introMark">SOUL CARTEL</h1>
-<p class="introLine">YOU ARE MARKED</p>
-</div>
+<div class="introText"></div>
 </div>
 
 <!-- ================= NAV ================= -->
 
 <nav>
-<a href="index.html">HOME</a>
-<a href="about.html">ABOUT</a>
-<a href="collections.html">COLLECTIONS</a>
+<a href="#">HOME</a>
+<a href="#">ABOUT</a>
+<a href="#">COLLECTIONS</a>
 </nav>
 
 <!-- ================= HERO ================= -->
@@ -234,8 +232,6 @@ to{opacity:1;transform:none}
 </div>
 </section>
 
-<!-- ================= ABOUT ================= -->
-
 <section class="manifesto">
 <h2>ABOUT</h2>
 <p>
@@ -245,26 +241,21 @@ Presence over performance.
 </p>
 </section>
 
-<!-- ================= COLLECTION ================= -->
-
 <section>
 <h2 style="letter-spacing:.2em;color:var(--silver)">COLLECTIONS</h2>
-
 <div class="collection">
-<a href="collections.html" class="card">
+<div class="card">
 <h3>OBSIDIAN</h3>
 <p>Heavyweight silhouettes. Matte finishes.</p>
-</a>
-
-<a href="collections.html" class="card">
+</div>
+<div class="card">
 <h3>BLOODLINE</h3>
 <p>Limited release. Deep tones. Sharp cuts.</p>
-</a>
-
-<a href="collections.html" class="card">
+</div>
+<div class="card">
 <h3>VOID</h3>
 <p>Minimal forms. Maximum presence.</p>
-</a>
+</div>
 </div>
 </section>
 
@@ -325,58 +316,95 @@ renderer.setSize(innerWidth,innerHeight);
 });
 </script>
 
-<!-- ================= INTRO SCRIPT ================= -->
+<!-- ================= ICARUS INTRO SCRIPT ================= -->
 
 <script>
 window.addEventListener("load", function () {
 
 const intro=document.getElementById("intro3D");
 const canvas=document.getElementById("introCanvas");
+const text=document.querySelector(".introText");
 
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+const renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+camera.position.z=22;
 
-const geometry=new THREE.BoxGeometry(3,7,1);
-const material=new THREE.MeshStandardMaterial({
+const mono=new THREE.Mesh(
+new THREE.BoxGeometry(2.5,7,1),
+new THREE.MeshStandardMaterial({
 color:0x050505,
 metalness:1,
-roughness:0.2,
-emissive:0x1a0000
-});
+roughness:.15,
+emissive:0x140000,
+emissiveIntensity:.6
+})
+);
+mono.position.y=-8;
+scene.add(mono);
 
-const monolith=new THREE.Mesh(geometry,material);
-scene.add(monolith);
+const sun=new THREE.Mesh(
+new THREE.SphereGeometry(3,32,32),
+new THREE.MeshBasicMaterial({color:0x8b0000})
+);
+sun.position.set(0,10,-8);
+scene.add(sun);
 
-const redLight=new THREE.PointLight(0xff0000,2,100);
-redLight.position.set(0,5,10);
-scene.add(redLight);
+const sunLight=new THREE.PointLight(0xff0000,3,100);
+sunLight.position.copy(sun.position);
+scene.add(sunLight);
 
 scene.add(new THREE.AmbientLight(0x111111));
 
-camera.position.z=15;
+const wingGeo=new THREE.BufferGeometry();
+const count=500;
+const pos=[];
+for(let i=0;i<count;i++){
+const side=i<count/2?-1:1;
+pos.push(side*(Math.random()*7),Math.random()*6-3,(Math.random()-.5)*2);
+}
+wingGeo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
 
-const clock=new THREE.Clock();
+const wingMat=new THREE.PointsMaterial({
+color:0xffffff,
+size:.15,
+transparent:true,
+opacity:0
+});
+const wings=new THREE.Points(wingGeo,wingMat);
+scene.add(wings);
 
-function animate(){
-requestAnimationFrame(animate);
-const t=clock.getElapsedTime();
-monolith.rotation.y+=0.004;
-redLight.intensity=1.5+Math.sin(t*2)*1;
-camera.position.x=Math.sin(t*0.4)*1.5;
-camera.lookAt(0,0,0);
+const clock2=new THREE.Clock();
+function animateIntro(){
+requestAnimationFrame(animateIntro);
+const t=clock2.getElapsedTime();
+
+if(mono.position.y<0) mono.position.y+=0.04;
+mono.rotation.y+=0.003;
+
+sunLight.intensity=2+Math.sin(t*3)*1.5;
+
+if(t>2&&t<4) wingMat.opacity+=0.02;
+if(t>4&&t<6){
+wingMat.color.set(0xff0000);
+wingMat.opacity-=0.02;
+}
+
 renderer.render(scene,camera);
 }
-animate();
-
-setTimeout(()=>{document.querySelector(".introText").style.opacity="1"},1500);
+animateIntro();
 
 setTimeout(()=>{
-intro.style.transition="opacity 2s ease";
+text.innerHTML="<h1 class='introMark'>ICARUS FELL.</h1><p class='introLine'>WE ASCEND</p>";
+text.style.opacity="1";
+},5000);
+
+setTimeout(()=>{
 intro.style.opacity="0";
-setTimeout(()=>{intro.remove()},2000);
-},6500);
+setTimeout(()=>intro.remove(),2000);
+},8500);
 
 });
 </script>
