@@ -9,6 +9,50 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Cinzel:wght@600&display=swap" rel="stylesheet">
 
   <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+#intro3D {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#introCanvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.introText {
+  position: relative;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 2s ease;
+  z-index: 10;
+}
+
+.introMark {
+  font-size: 3rem;
+  letter-spacing: 10px;
+  color: #8b0000;
+  text-shadow: 0 0 30px crimson;
+}
+
+.introLine {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  letter-spacing: 4px;
+  color: #aaa;
+}
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
 
   <style>
@@ -285,6 +329,13 @@ document.addEventListener("visibilitychange",()=>{
 });
   </script>
 <body>
+  <div id="intro3D">
+  <canvas id="introCanvas"></canvas>
+  <div class="introText">
+    <h1 class="introMark">SOUL CARTEL</h1>
+    <p class="introLine">You Are Marked.</p>
+  </div>
+  </div>
   <div id="shadowMode">
   <div class="shadowText">
     THE SITE IS EVOLVING
@@ -434,6 +485,92 @@ document.addEventListener("visibilitychange",()=>{
   if (localStorage.getItem("shadow_mode") === "true") {
     document.getElementById("shadowOverlay")?.classList.add("active");
   }
+  </script>
+  <script>
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.Fog(0x000000, 20, 70);
+
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById("introCanvas"),
+  antialias: true
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+
+const emblem = new THREE.Group();
+scene.add(emblem);
+
+const material = new THREE.MeshStandardMaterial({
+  color: 0x1c1c1c,
+  metalness: 1,
+  roughness: 0.3,
+  emissive: 0x330000,
+  emissiveIntensity: 0.6
+});
+
+for (let i = 0; i < 15; i++) {
+  const geometry = new THREE.BoxGeometry(
+    Math.random() * 3 + 1,
+    Math.random() * 1 + 0.5,
+    Math.random() * 1.5 + 0.5
+  );
+
+  const piece = new THREE.Mesh(geometry, material);
+
+  piece.position.x = (Math.random() - 0.5) * 10;
+  piece.position.y = (Math.random() - 0.5) * 10;
+  piece.position.z = (Math.random() - 0.5) * 5;
+
+  piece.rotation.x = Math.random() * Math.PI;
+  piece.rotation.y = Math.random() * Math.PI;
+
+  emblem.add(piece);
+}
+
+const redLight = new THREE.PointLight(0xff0000, 2, 100);
+redLight.position.set(15, 20, 15);
+scene.add(redLight);
+
+const fillLight = new THREE.PointLight(0x550000, 1.5, 100);
+fillLight.position.set(-15, -10, -10);
+scene.add(fillLight);
+
+camera.position.z = 30;
+
+function animate() {
+  requestAnimationFrame(animate);
+  emblem.rotation.y += 0.004;
+  emblem.rotation.x += 0.002;
+  renderer.render(scene, camera);
+}
+animate();
+
+setTimeout(() => {
+  document.querySelector(".introText").style.opacity = "1";
+}, 2500);
+
+setTimeout(() => {
+  const intro = document.getElementById("intro3D");
+  intro.style.transition = "opacity 2s ease";
+  intro.style.opacity = "0";
+  setTimeout(() => {
+    intro.remove();
+  }, 2000);
+}, 7000);
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
   </script>
 </body>
 </html>
