@@ -1,558 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOUL CARTEL</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SOUL CARTEL</title>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
 
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <style>
-#intro3D {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  z-index: 999999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+<style>
+:root{
+--bg:#000;
+--text:#f5f5f5;
+--muted:rgba(255,255,255,.6);
+--silver:#bfbfbf;
+--red:#8b0000;
 }
 
-#introCanvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+font-family:'Inter',sans-serif;
+background:radial-gradient(circle at top,#0b0b0b,#000);
+color:var(--text);
+overflow-x:hidden;
 }
 
-.introText {
-  position: relative;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 2s ease;
-  z-index: 10;
+/* ================= INTRO ================= */
+
+#intro3D{
+position:fixed;
+inset:0;
+background:#000;
+z-index:999999;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
 }
 
-.introMark {
-  font-size: 3rem;
-  letter-spacing: 10px;
-  color: #8b0000;
-  text-shadow: 0 0 30px crimson;
+#introCanvas{
+position:absolute;
+width:100%;
+height:100%;
 }
 
-.introLine {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  letter-spacing: 4px;
-  color: #aaa;
-}
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
-
-  <style>
-    /* SHADOW MODE OVERLAY */
-#shadowMode {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #050505 0%, #000 70%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1.2s ease;
+.introText{
+position:relative;
+text-align:center;
+opacity:0;
+transition:opacity 2s ease;
+z-index:10;
 }
 
-#shadowMode.active {
-  opacity: 1;
-  pointer-events: all;
+.introMark{
+font-family:'Cinzel',serif;
+font-size:clamp(2rem,6vw,4rem);
+letter-spacing:.4em;
+color:#8b0000;
+text-shadow:0 0 40px crimson;
 }
 
-/* TEXT */
-.shadowText {
-  font-family: serif;
-  font-size: clamp(20px, 4vw, 42px);
-  letter-spacing: 0.4em;
-  color: rgba(255,255,255,0.85);
-  animation: pulseText 3.5s infinite ease-in-out;
-  text-align: center;
+.introLine{
+margin-top:12px;
+font-size:.8rem;
+letter-spacing:.5em;
+color:#aaa;
 }
 
-/* TEXT ANIMATION */
-@keyframes pulseText {
-  0% {
-    opacity: 0.15;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.15;
-    transform: scale(0.98);
-  }
-}
-    :root {
-      --bg:#000;
-      --text:#f5f5f5;
-      --muted:rgba(255,255,255,.6);
-      --silver:#bfbfbf;
-      --red:#8b0000;
-    }
+/* ================= NAV ================= */
 
-    *{margin:0;padding:0;box-sizing:border-box}
-
-    body{
-      font-family:'Inter',sans-serif;
-      background:radial-gradient(circle at top,#0b0b0b,#000);
-      color:var(--text);
-      overflow-x:hidden;
-    }
-
-    nav{
-      position:fixed;
-      top:24px;
-      right:32px;
-      z-index:10;
-      display:flex;
-      gap:24px;
-    }
-
-    nav a{
-      color:var(--muted);
-      text-decoration:none;
-      letter-spacing:.25em;
-      font-size:.7rem;
-    }
-
-    nav a:hover{color:var(--text)}
-
-    .hero{
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-      text-align:center;
-    }
-
-    canvas{
-      position:absolute;
-      inset:0;
-      z-index:0;
-    }
-
-    .hero-content{
-      position:relative;
-      z-index:2;
-    }
-
-    .hero h1{
-      font-family:'Cinzel',serif;
-      font-size:clamp(3rem,8vw,7rem);
-      letter-spacing:.2em;
-      color:var(--silver);
-      opacity:0;
-      transform:translateY(30px);
-      animation:fadeUp 1.6s ease forwards;
-    }
-
-    .hero p{
-      margin-top:1.2rem;
-      font-size:.85rem;
-      letter-spacing:.35em;
-      color:var(--muted);
-    }
-
-    section{
-      padding:10rem 10vw;
-      opacity:0;
-      transform:translateY(40px);
-      transition:1.2s ease;
-    }
-
-    section.visible{
-      opacity:1;
-      transform:none;
-    }
-
-    .manifesto{
-      background:linear-gradient(180deg,#000,#060606);
-    }
-
-    .manifesto h2{
-      font-size:2.3rem;
-      letter-spacing:.2em;
-      margin-bottom:2rem;
-      color:var(--silver);
-    }
-
-    .manifesto p{
-      max-width:720px;
-      font-size:1.2rem;
-      line-height:1.9;
-      color:var(--muted);
-    }
-
-    .collection{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:3rem;
-      margin-top:4rem;
-    }
-
-    .card{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.08);
-      padding:3rem 2rem;
-      border-radius:20px;
-      backdrop-filter:blur(12px);
-      transition:.6s cubic-bezier(.22,1,.36,1);
-      text-decoration:none;
-    }
-
-    .card:hover{
-      transform:translateY(-10px) scale(1.04);
-      border-color:rgba(255,255,255,.25);
-    }
-
-    .card h3{
-      letter-spacing:.2em;
-      margin-bottom:1rem;
-      color:var(--silver);
-    }
-
-    .card p{color:var(--muted)}
-
-    footer{
-      padding:4rem 10vw;
-      text-align:center;
-      border-top:1px solid rgba(255,255,255,.08);
-      font-size:.75rem;
-      letter-spacing:.25em;
-      color:rgba(255,255,255,.4);
-    }
-
-    @keyframes fadeUp{
-      to{opacity:1;transform:none}
-    }
-    #markOverlay {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #0b0b0b, #000);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(1.05);
-  transition: opacity 0.8s ease, transform 1s ease;
-  z-index: 9999;
+nav{
+position:fixed;
+top:24px;
+right:32px;
+z-index:10;
+display:flex;
+gap:24px;
 }
 
-#markOverlay.show {
-  opacity: 1;
-  transform: scale(1);
+nav a{
+color:var(--muted);
+text-decoration:none;
+letter-spacing:.25em;
+font-size:.7rem;
 }
 
-.markBox {
-  text-align: center;
-  color: #e5e5e5;
-  font-family: serif;
-  transform: translateZ(0);
-  animation: rise 2.5s ease forwards;
+nav a:hover{color:var(--text)}
+
+/* ================= HERO ================= */
+
+.hero{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+position:relative;
+text-align:center;
 }
 
-.markTitle {
-  font-size: clamp(18px, 3vw, 28px);
-  letter-spacing: 0.35em;
-  opacity: 0.6;
-  margin-bottom: 16px;
+.hero canvas{
+position:absolute;
+inset:0;
+z-index:0;
 }
 
-.markValue {
-  font-size: clamp(22px, 4vw, 42px);
-  letter-spacing: 0.15em;
-  text-shadow:
-    0 0 10px rgba(255,255,255,0.15),
-    0 10px 30px rgba(0,0,0,0.9);
+.hero-content{
+position:relative;
+z-index:2;
 }
 
-@keyframes rise {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.hero h1{
+font-family:'Cinzel',serif;
+font-size:clamp(3rem,8vw,7rem);
+letter-spacing:.2em;
+color:var(--silver);
+opacity:0;
+transform:translateY(30px);
+animation:fadeUp 1.6s ease forwards;
 }
-    #markCorner {
-  position: fixed;
-  bottom: 14px;
-  right: 18px;
-  font-size: 11px;
-  opacity: 0.35;
-  letter-spacing: 0.12em;
-  pointer-events: none;
-    }
-  </style>
+
+.hero p{
+margin-top:1.2rem;
+font-size:.85rem;
+letter-spacing:.35em;
+color:var(--muted);
+}
+
+/* ================= SECTIONS ================= */
+
+section{
+padding:10rem 10vw;
+opacity:0;
+transform:translateY(40px);
+transition:1.2s ease;
+}
+
+section.visible{
+opacity:1;
+transform:none;
+}
+
+.manifesto{
+background:linear-gradient(180deg,#000,#060606);
+}
+
+.manifesto h2{
+font-size:2.3rem;
+letter-spacing:.2em;
+margin-bottom:2rem;
+color:var(--silver);
+}
+
+.manifesto p{
+max-width:720px;
+font-size:1.2rem;
+line-height:1.9;
+color:var(--muted);
+}
+
+.collection{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:3rem;
+margin-top:4rem;
+}
+
+.card{
+background:rgba(255,255,255,.03);
+border:1px solid rgba(255,255,255,.08);
+padding:3rem 2rem;
+border-radius:20px;
+backdrop-filter:blur(12px);
+transition:.6s cubic-bezier(.22,1,.36,1);
+text-decoration:none;
+}
+
+.card:hover{
+transform:translateY(-10px) scale(1.04);
+border-color:rgba(255,255,255,.25);
+}
+
+.card h3{
+letter-spacing:.2em;
+margin-bottom:1rem;
+color:var(--silver);
+}
+
+.card p{color:var(--muted)}
+
+footer{
+padding:4rem 10vw;
+text-align:center;
+border-top:1px solid rgba(255,255,255,.08);
+font-size:.75rem;
+letter-spacing:.25em;
+color:rgba(255,255,255,.4);
+}
+
+@keyframes fadeUp{
+to{opacity:1;transform:none}
+}
+</style>
 </head>
-<script>
-const LIMIT = 5 * 60 * 1000;
 
-const access = sessionStorage.getItem("cartel_access");
-const time = sessionStorage.getItem("cartel_time");
-
-if(!access || !time || Date.now() - time > LIMIT){
-  sessionStorage.clear();
-  document.body.style.opacity = 0;
-  setTimeout(()=>{
-    location.href="gate.html";
-  },300);
-}
-</script>
-  <script>
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){
-    sessionStorage.clear();
-  }
-});
-  </script>
 <body>
-  <div id="intro3D">
-  <canvas id="introCanvas"></canvas>
-  <div class="introText">
-    <h1 class="introMark">SOUL CARTEL</h1>
-    <p class="introLine">You Are Marked.</p>
-  </div>
-  </div>
-  <div id="shadowMode">
-  <div class="shadowText">
-    THE SITE IS EVOLVING
-  </div>
-  </div>
-  <div id="markOverlay">
-  <div class="markBox">
-    <div class="markTitle">YOU HAVE BEEN MARKED</div>
-    <div class="markValue" id="markValue"></div>
-  </div>
-  </div>
-<script>
-  if (localStorage.getItem("cartel_sealed") === "true") {
-    location.replace("gate.html");
-  }
-</script>
+
+<!-- ================= INTRO ================= -->
+
+<div id="intro3D">
+<canvas id="introCanvas"></canvas>
+<div class="introText">
+<h1 class="introMark">SOUL CARTEL</h1>
+<p class="introLine">YOU ARE MARKED</p>
+</div>
+</div>
+
+<!-- ================= NAV ================= -->
+
 <nav>
-  <a href="index.html">HOME</a>
-  <a href="about.html">ABOUT</a>
-  <a href="collections.html">COLLECTIONS</a>
+<a href="index.html">HOME</a>
+<a href="about.html">ABOUT</a>
+<a href="collections.html">COLLECTIONS</a>
 </nav>
 
+<!-- ================= HERO ================= -->
+
 <section class="hero">
-  <canvas id="scene"></canvas>
-  <div class="hero-content">
-    <h1>SOUL CARTEL</h1>
-    <p>BUILT FROM SOUL · RULED BY CARTEL</p>
-  </div>
+<canvas id="scene"></canvas>
+<div class="hero-content">
+<h1>SOUL CARTEL</h1>
+<p>BUILT FROM SOUL · RULED BY CARTEL</p>
+</div>
 </section>
+
+<!-- ================= ABOUT ================= -->
 
 <section class="manifesto">
-  <h2>ABOUT</h2>
-  <p>
-    SOUL CARTEL exists between fashion and feeling.
-    Designed for a generation that values silence over noise.
-    Presence over performance.
-  </p>
+<h2>ABOUT</h2>
+<p>
+SOUL CARTEL exists between fashion and feeling.
+Designed for a generation that values silence over noise.
+Presence over performance.
+</p>
 </section>
 
+<!-- ================= COLLECTION ================= -->
+
 <section>
-  <h2 style="letter-spacing:.2em;color:var(--silver)">COLLECTIONS</h2>
+<h2 style="letter-spacing:.2em;color:var(--silver)">COLLECTIONS</h2>
 
-  <div class="collection">
-    <a href="collections.html" class="card">
-      <h3>OBSIDIAN</h3>
-      <p>Heavyweight silhouettes. Matte finishes.</p>
-    </a>
+<div class="collection">
+<a href="collections.html" class="card">
+<h3>OBSIDIAN</h3>
+<p>Heavyweight silhouettes. Matte finishes.</p>
+</a>
 
-    <a href="collections.html" class="card">
-      <h3>BLOODLINE</h3>
-      <p>Limited release. Deep tones. Sharp cuts.</p>
-    </a>
+<a href="collections.html" class="card">
+<h3>BLOODLINE</h3>
+<p>Limited release. Deep tones. Sharp cuts.</p>
+</a>
 
-    <a href="collections.html" class="card">
-      <h3>VOID</h3>
-      <p>Minimal forms. Maximum presence.</p>
-    </a>
-  </div>
+<a href="collections.html" class="card">
+<h3>VOID</h3>
+<p>Minimal forms. Maximum presence.</p>
+</a>
+</div>
 </section>
 
 <footer>
-  <div id="markCorner"></div>
-
-<script>
-  document.getElementById("markCorner").innerText =
-    `THE MARK: ${localStorage.getItem("THE_MARK")}`;
-</script>
-  © 2025 SOUL CARTEL · ALL ACCESS CONTROLLED
+© 2025 SOUL CARTEL · ALL ACCESS CONTROLLED
 </footer>
 
+<!-- ================= HERO 3D ================= -->
+
 <script>
-  const sections=document.querySelectorAll("section");
-  const observer=new IntersectionObserver(e=>{
-    e.forEach(x=>x.isIntersecting&&x.target.classList.add("visible"))
-  },{threshold:.15});
-  sections.forEach(s=>observer.observe(s));
+const sections=document.querySelectorAll("section");
+const observer=new IntersectionObserver(e=>{
+e.forEach(x=>x.isIntersecting&&x.target.classList.add("visible"))
+},{threshold:.15});
+sections.forEach(s=>observer.observe(s));
 
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,1000);
-  camera.position.z=4;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,1000);
+camera.position.z=4;
 
-  const renderer=new THREE.WebGLRenderer({
-    canvas:document.getElementById("scene"),
-    alpha:true,
-    antialias:true
-  });
+const renderer=new THREE.WebGLRenderer({
+canvas:document.getElementById("scene"),
+alpha:true,
+antialias:true
+});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 
-  renderer.setSize(innerWidth,innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const mesh=new THREE.Mesh(
+new THREE.TorusKnotGeometry(1,.3,120,16),
+new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:1,roughness:.15})
+);
 
-  const mesh=new THREE.Mesh(
-    new THREE.TorusKnotGeometry(1,.3,120,16),
-    new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:1,roughness:.15})
-  );
+scene.add(mesh);
+scene.add(new THREE.AmbientLight(0xffffff,.4));
 
-  scene.add(mesh);
-  scene.add(new THREE.AmbientLight(0xffffff,.4));
+const l1=new THREE.PointLight(0xffffff,1);
+l1.position.set(5,5,5);
+scene.add(l1);
 
-  const l1=new THREE.PointLight(0xffffff,1);
-  l1.position.set(5,5,5);
-  scene.add(l1);
+const l2=new THREE.PointLight(0x8b0000,1);
+l2.position.set(-5,-5,-5);
+scene.add(l2);
 
-  const l2=new THREE.PointLight(0x8b0000,1);
-  l2.position.set(-5,-5,-5);
-  scene.add(l2);
+const clock=new THREE.Clock();
+(function animate(){
+const t=clock.getElapsedTime();
+mesh.rotation.y=t*.15;
+mesh.rotation.x=Math.sin(t*.25)*.15;
+renderer.render(scene,camera);
+requestAnimationFrame(animate);
+})();
 
-  const clock=new THREE.Clock();
-  (function animate(){
-    const t=clock.getElapsedTime();
-    mesh.rotation.y=t*.15;
-    mesh.rotation.x=Math.sin(t*.25)*.15;
-    renderer.render(scene,camera);
-    requestAnimationFrame(animate);
-  })();
-
-  addEventListener("resize",()=>{
-    camera.aspect=innerWidth/innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth,innerHeight);
-  });
+addEventListener("resize",()=>{
+camera.aspect=innerWidth/innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(innerWidth,innerHeight);
+});
 </script>
-<div id="markOverlay">
-  <div class="markBox">
-    <div class="markTitle">YOU HAVE BEEN MARKED</div>
-    <div class="markValue"></div>
-  </div>
-</div>
 
-<script src="js/mark.js"></script>
+<!-- ================= INTRO SCRIPT ================= -->
+
 <script>
-  const isNew = localStorage.getItem("MARK_NEW") === "true";
-  const overlay = document.getElementById("markOverlay");
-  const markValue = document.querySelector(".markValue");
-
-  markValue.innerText = localStorage.getItem("THE_MARK");
-
-  if (isNew) {
-    overlay.classList.add("show");
-    setTimeout(() => {
-      overlay.classList.remove("show");
-      localStorage.removeItem("MARK_NEW");
-    }, 3500);
-  }
-</script>
-  <script src="js/mark.js"></script>
-  <script>
-  if (localStorage.getItem("shadow_mode") === "true") {
-    document.getElementById("shadowOverlay")?.classList.add("active");
-  }
-  </script>
-  <script>
 window.addEventListener("load", function () {
 
-  const intro = document.getElementById("intro3D");
-  const canvas = document.getElementById("introCanvas");
+const intro=document.getElementById("intro3D");
+const canvas=document.getElementById("introCanvas");
 
-  if (!intro || !canvas || typeof THREE === "undefined") {
-    if (intro) intro.style.display = "none";
-    return;
-  }
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+const renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
 
-  try {
+const geometry=new THREE.BoxGeometry(3,7,1);
+const material=new THREE.MeshStandardMaterial({
+color:0x050505,
+metalness:1,
+roughness:0.2,
+emissive:0x1a0000
+});
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
+const monolith=new THREE.Mesh(geometry,material);
+scene.add(monolith);
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      antialias: true
-    });
+const redLight=new THREE.PointLight(0xff0000,2,100);
+redLight.position.set(0,5,10);
+scene.add(redLight);
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
+scene.add(new THREE.AmbientLight(0x111111));
 
-    const geometry = new THREE.IcosahedronGeometry(4, 1);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      emissive: 0x8b0000,
-      metalness: 0.8,
-      roughness: 0.2
-    });
+camera.position.z=15;
 
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+const clock=new THREE.Clock();
 
-    const light = new THREE.PointLight(0xff0000, 2);
-    light.position.set(10, 10, 10);
-    scene.add(light);
+function animate(){
+requestAnimationFrame(animate);
+const t=clock.getElapsedTime();
+monolith.rotation.y+=0.004;
+redLight.intensity=1.5+Math.sin(t*2)*1;
+camera.position.x=Math.sin(t*0.4)*1.5;
+camera.lookAt(0,0,0);
+renderer.render(scene,camera);
+}
+animate();
 
-    camera.position.z = 10;
+setTimeout(()=>{document.querySelector(".introText").style.opacity="1"},1500);
 
-    function animate() {
-      requestAnimationFrame(animate);
-      mesh.rotation.x += 0.01;
-      mesh.rotation.y += 0.01;
-      renderer.render(scene, camera);
-    }
-
-    animate();
-
-    setTimeout(() => {
-      intro.style.opacity = "0";
-      intro.style.transition = "opacity 1.5s ease";
-      setTimeout(() => {
-        intro.style.display = "none";
-      }, 1500);
-    }, 5000);
-
-  } catch (e) {
-    intro.style.display = "none";
-  }
+setTimeout(()=>{
+intro.style.transition="opacity 2s ease";
+intro.style.opacity="0";
+setTimeout(()=>{intro.remove()},2000);
+},6500);
 
 });
-  </script>
+</script>
+
 </body>
 </html>
