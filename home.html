@@ -487,89 +487,71 @@ document.addEventListener("visibilitychange",()=>{
   }
   </script>
   <script>
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
-scene.fog = new THREE.Fog(0x000000, 20, 70);
+window.addEventListener("load", function () {
 
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.getElementById("introCanvas"),
-  antialias: true
-});
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
-
-const emblem = new THREE.Group();
-scene.add(emblem);
-
-const material = new THREE.MeshStandardMaterial({
-  color: 0x1c1c1c,
-  metalness: 1,
-  roughness: 0.3,
-  emissive: 0x330000,
-  emissiveIntensity: 0.6
-});
-
-for (let i = 0; i < 15; i++) {
-  const geometry = new THREE.BoxGeometry(
-    Math.random() * 3 + 1,
-    Math.random() * 1 + 0.5,
-    Math.random() * 1.5 + 0.5
-  );
-
-  const piece = new THREE.Mesh(geometry, material);
-
-  piece.position.x = (Math.random() - 0.5) * 10;
-  piece.position.y = (Math.random() - 0.5) * 10;
-  piece.position.z = (Math.random() - 0.5) * 5;
-
-  piece.rotation.x = Math.random() * Math.PI;
-  piece.rotation.y = Math.random() * Math.PI;
-
-  emblem.add(piece);
-}
-
-const redLight = new THREE.PointLight(0xff0000, 2, 100);
-redLight.position.set(15, 20, 15);
-scene.add(redLight);
-
-const fillLight = new THREE.PointLight(0x550000, 1.5, 100);
-fillLight.position.set(-15, -10, -10);
-scene.add(fillLight);
-
-camera.position.z = 30;
-
-function animate() {
-  requestAnimationFrame(animate);
-  emblem.rotation.y += 0.004;
-  emblem.rotation.x += 0.002;
-  renderer.render(scene, camera);
-}
-animate();
-
-setTimeout(() => {
-  document.querySelector(".introText").style.opacity = "1";
-}, 2500);
-
-setTimeout(() => {
   const intro = document.getElementById("intro3D");
-  intro.style.transition = "opacity 2s ease";
-  intro.style.opacity = "0";
-  setTimeout(() => {
-    intro.remove();
-  }, 2000);
-}, 7000);
+  const canvas = document.getElementById("introCanvas");
 
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  if (!intro || !canvas || typeof THREE === "undefined") {
+    if (intro) intro.style.display = "none";
+    return;
+  }
+
+  try {
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true
+    });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const geometry = new THREE.IcosahedronGeometry(4, 1);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      emissive: 0x8b0000,
+      metalness: 0.8,
+      roughness: 0.2
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    const light = new THREE.PointLight(0xff0000, 2);
+    light.position.set(10, 10, 10);
+    scene.add(light);
+
+    camera.position.z = 10;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      mesh.rotation.x += 0.01;
+      mesh.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    setTimeout(() => {
+      intro.style.opacity = "0";
+      intro.style.transition = "opacity 1.5s ease";
+      setTimeout(() => {
+        intro.style.display = "none";
+      }, 1500);
+    }, 5000);
+
+  } catch (e) {
+    intro.style.display = "none";
+  }
+
 });
   </script>
 </body>
