@@ -357,18 +357,37 @@ const intro=document.getElementById("intro3D");
 const canvas=document.getElementById("introCanvas");
 
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-camera.position.z=12;
+scene.fog = new THREE.Fog(0x000000, 10, 30);
 
-const renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.z=14;
+
+const renderer=new THREE.WebGLRenderer({
+canvas:canvas,
+antialias:true,
+alpha:false
+});
 renderer.setSize(window.innerWidth,window.innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 
+/* ===== SUBTLE BACKGROUND GRADIENT ===== */
+
+const bgGeo = new THREE.SphereGeometry(40,32,32);
+const bgMat = new THREE.MeshBasicMaterial({
+color:0x0a0a0a,
+side:THREE.BackSide
+});
+const bg = new THREE.Mesh(bgGeo,bgMat);
+scene.add(bg);
+
+/* ===== SLABS ===== */
+
 const slabGeo=new THREE.BoxGeometry(3,8,1);
+
 const slabMat=new THREE.MeshStandardMaterial({
-color:0x050505,
+color:0x111111,
 metalness:1,
-roughness:0.25
+roughness:0.15
 });
 
 const leftSlab=new THREE.Mesh(slabGeo,slabMat);
@@ -380,30 +399,49 @@ rightSlab.position.x=1.6;
 scene.add(leftSlab);
 scene.add(rightSlab);
 
-const redLight=new THREE.PointLight(0xff0000,4,40);
-redLight.position.set(0,0,4);
+/* ===== LIGHTING ===== */
+
+// Soft ambient
+scene.add(new THREE.AmbientLight(0x222222));
+
+// White rim light (reveals edges)
+const rimLight = new THREE.DirectionalLight(0xffffff,1.2);
+rimLight.position.set(5,8,10);
+scene.add(rimLight);
+
+// Red crack light
+const redLight=new THREE.PointLight(0xff0000,3,50);
+redLight.position.set(0,0,3);
 scene.add(redLight);
 
-scene.add(new THREE.AmbientLight(0x111111));
+/* ===== ANIMATION ===== */
 
 let clock=new THREE.Clock();
 let split=false;
 
 function animate(){
 requestAnimationFrame(animate);
+
 let t=clock.getElapsedTime();
+
+// subtle floating movement before split
+leftSlab.rotation.y = Math.sin(t*0.4)*0.05;
+rightSlab.rotation.y = -Math.sin(t*0.4)*0.05;
 
 if(t>2) split=true;
 
 if(split){
 leftSlab.position.x -= 0.05;
 rightSlab.position.x += 0.05;
-redLight.intensity = 4 + Math.sin(t*6)*2;
+redLight.intensity = 3 + Math.sin(t*8)*2;
 }
 
 renderer.render(scene,camera);
 }
+
 animate();
+
+/* ===== TEXT TIMING ===== */
 
 setTimeout(()=>{
 document.querySelector(".introMain").style.opacity="1";
@@ -414,6 +452,8 @@ setTimeout(()=>{
 document.querySelector(".introSub").style.opacity="1";
 },3800);
 
+/* ===== FLASH ===== */
+
 const flash=document.createElement("div");
 flash.className="flash";
 intro.appendChild(flash);
@@ -423,6 +463,8 @@ flash.style.transition="0.25s ease";
 flash.style.opacity="1";
 setTimeout(()=>flash.style.opacity="0",200);
 },4200);
+
+/* ===== FADE OUT ===== */
 
 setTimeout(()=>{
 intro.style.transition="opacity 2s ease";
@@ -438,6 +480,7 @@ renderer.setSize(window.innerWidth,window.innerHeight);
 
 });
 </script>
+
 
 </body>
 </html>
